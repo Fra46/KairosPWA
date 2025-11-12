@@ -51,7 +51,7 @@ git clone https://github.com/Fra46/KairosWebAPI
 dotnet restore
 ```
 
-3. Configurar la cadena de conexión en `appsettings.json` (Ya configurada):
+3. Configurar la cadena de conexión en `appsettings.json` (ya configurado por defecto):
 
 
 ```json
@@ -102,19 +102,19 @@ KairosPWA/
 ```
 
 
-### Frontend (React + Vite)
+## 🔧 Instalación y Configuración del Frontend
 
 1. Clona este repositorio:
 
 
-```shellscript
-git clone https://github.com/Fra46/KairosWebAPI
+```bash
+git clone https://github.com/Fra46/KairosPWA
 ```
 
 2. Instala las dependencias:
 
 
-```shellscript
+```bash
 npm install react-router-dom axios bootstrap
 npm install
 ```
@@ -135,13 +135,13 @@ proxy: {
 4. Ejecuta el frontend:
 
 
-```shellscript
+```bash
 npm run dev
 ```
 
 El frontend estará disponible en `http://localhost:3000`
 
-## Estructura del Proyecto
+## Estructura del Frontend
 
 ```plaintext
 kairos-frontend/
