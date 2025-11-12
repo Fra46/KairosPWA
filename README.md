@@ -2,7 +2,7 @@
 
 Kairos es un sistema web adaptable para la gestión eficiente de turnos en cualquier institución o empresa que preste servicios. Brinda administración centralizada y una experiencia moderna, facilitando la solicitud, visualización y avance de turnos en tiempo real.
 
-![Logo de Kairos](https://github.com/Fra46/KairosWebAPI/blob/master/Kairos.jpg)
+![Logo de Kairos](https://github.com/Fra46/KairosPWA/blob/master/LogoKairos.jpg)
 
 ## 🚀 Características
 
