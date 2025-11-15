@@ -27,14 +27,15 @@ namespace KairosPWA.Controllers
 
         // GET: api/Turns
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TurnDTO>>> GetTurns()
+        public async Task<ActionResult<IEnumerable<TurnDTO>>> GetTurns(CancellationToken cancellationToken)
         {
-            var turnsClient = await _context.Turns.Include(t => t.Client).ToListAsync();
-            var turnsService = await _context.Turns.Include(t => t.Service).ToListAsync();
-            var turnClienteDtos = _mapper.Map<List<TurnDTO>>(turnsClient);
-            var turnServiceDtos = _mapper.Map<List<TurnDTO>>(turnsService);
-            var turnDtos = turnClienteDtos.Concat(turnServiceDtos).ToList();
+            var turns = await _context.Turns
+                .AsNoTracking()
+                .Include(t => t.Client)
+                .Include(t => t.Service)
+                .ToListAsync(cancellationToken);
 
+            var turnDtos = _mapper.Map<List<TurnDTO>>(turns);
             return turnDtos;
         }
 
@@ -86,14 +87,16 @@ namespace KairosPWA.Controllers
         // POST: api/Turns
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TurnDTO>> PostTurn(TurnCreateDTO turnDto)
+        public async Task<ActionResult<TurnDTO>> PostTurn(TurnCreateDTO turnDto, CancellationToken cancellationToken)
         {
             var turnEntidad = _mapper.Map<Turn>(turnDto);
+
+            turnEntidad.FechaHora = DateTime.UtcNow;
 
             _context.Turns.Add(turnEntidad);
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateException)
             {
@@ -106,9 +109,9 @@ namespace KairosPWA.Controllers
                     throw;
                 }
             }
-            turnEntidad.FechaHora = DateTime.Now;
-            await _context.Entry(turnEntidad).Reference(t => t.Client).LoadAsync();
-            await _context.Entry(turnEntidad).Reference(t => t.Service).LoadAsync();
+
+            await _context.Entry(turnEntidad).Reference(t => t.Client).LoadAsync(cancellationToken);
+            await _context.Entry(turnEntidad).Reference(t => t.Service).LoadAsync(cancellationToken);
 
             var responseDto = _mapper.Map<TurnDTO>(turnEntidad);
             return CreatedAtAction("GetTurn", new { id = turnEntidad.IdTurn },

@@ -9,6 +9,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var jwtKey = builder.Configuration["JwtSettings:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey) || Encoding.UTF8.GetBytes(jwtKey).Length < 32)
+{
+    throw new InvalidOperationException("JwtSettings:Key no configurada o demasiado corta. Usa user-secrets o variable de entorno con al menos 32 bytes.");
+}
+
 // Add services to the container.
 var ConeccionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ConnectionContext>(options =>
@@ -39,7 +45,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configura autenticación JWT
+// Configura autenticacion JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -56,6 +62,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -65,9 +73,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
+//app.UseMiddleware<RolMiddleware>("Admin");
 app.UseAuthorization();
 
 app.MapControllers();
