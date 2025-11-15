@@ -14,13 +14,18 @@ namespace KairosPWA.JWT
             _config = config;
         }
 
-        public string GenerateToken(string user)
+        public string GenerateToken(string user, string? rol = null)
         {
             var key = Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]);
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user)
             };
+
+            if (!string.IsNullOrWhiteSpace(rol))
+            {
+                claims.Add(new Claim(ClaimTypes.Role, rol));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],

@@ -117,12 +117,16 @@ namespace KairosPWA.Controllers
         public async Task<ActionResult<RegistroDTO>> Login(LoginDTO loginDto)
         {
             var user = await _context.Users
+                .Include(u => u.Rol)
                 .FirstOrDefaultAsync(p => p.Name == loginDto.User);
+
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
             {
                 return Unauthorized("Usuario o contraseña incorrectos.");
             }
-            var token = _jwtTokenGenerator.GenerateToken(loginDto.User);
+
+            var rolName = user.Rol?.Name;
+            var token = _jwtTokenGenerator.GenerateToken(loginDto.User, rolName);
             return Ok(new { token, loginDto.User });
         }
 
