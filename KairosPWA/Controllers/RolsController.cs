@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
+using KairosPWA.DTOs;
 
 namespace KairosPWA.Controllers
 {
@@ -45,14 +46,18 @@ namespace KairosPWA.Controllers
         // PUT: api/Rols/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRol(int id, Rol rol)
+        public async Task<IActionResult> PutRol(int id, RolDTO rolDto)
         {
-            if (id != rol.IdRol)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(rol).State = EntityState.Modified;
+            var rol = await _context.Rols.FindAsync(id);
+            if (rol == null) return NotFound();
+
+            if (!string.IsNullOrWhiteSpace(rolDto.Name)) rol.Name = rolDto.Name;
+            if (!string.IsNullOrWhiteSpace(rolDto.Permission)) rol.Permission = rolDto.Permission;
 
             try
             {
@@ -76,8 +81,20 @@ namespace KairosPWA.Controllers
         // POST: api/Rols
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Rol>> PostRol(Rol rol)
+        public async Task<ActionResult<Rol>> PostRol(RolDTO rolDto)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var rol = new Rol
+            {
+                Name = rolDto.Name,
+                Permission = rolDto.Permission
+            };
+
             _context.Rols.Add(rol);
             await _context.SaveChangesAsync();
 

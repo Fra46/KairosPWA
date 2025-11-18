@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
+using KairosPWA.DTOs;
 
 namespace KairosPWA.Controllers
 {
@@ -45,14 +46,23 @@ namespace KairosPWA.Controllers
         // PUT: api/Services/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutService(int id, Service service)
+        public async Task<IActionResult> PutService(int id, ServiceDTO serviceDto)
         {
-            if (id != service.IdService)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(service).State = EntityState.Modified;
+            var service = await _context.Services.FindAsync(id);
+            if (service == null)
+            {
+                return NotFound();
+            }
+
+            // Update only allowed fields from DTO
+            service.Name = serviceDto.Name;
+            service.Description = serviceDto.Description;
+            service.State = serviceDto.State;
 
             try
             {
@@ -76,8 +86,20 @@ namespace KairosPWA.Controllers
         // POST: api/Services
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Service>> PostService(Service service)
+        public async Task<ActionResult<Service>> PostService(ServiceDTO serviceDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var service = new Service
+            {
+                Name = serviceDto.Name,
+                Description = serviceDto.Description,
+                State = serviceDto.State
+            };
+
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
 

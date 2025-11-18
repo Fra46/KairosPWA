@@ -41,29 +41,41 @@ namespace KairosPWA.Controllers
 
         // GET: api/Turns/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Turn>> GetTurn(int id)
+        public async Task<ActionResult<TurnDTO>> GetTurn(int id)
         {
-            var turn = await _context.Turns.FindAsync(id);
+            var turn = await _context.Turns
+                .Include(t => t.Client)
+                .Include(t => t.Service)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.IdTurn == id);
 
             if (turn == null)
             {
                 return NotFound();
             }
 
-            return turn;
+            var dto = _mapper.Map<TurnDTO>(turn);
+            return dto;
         }
 
         // PUT: api/Turns/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // To protect from overposting attacks, receive a DTO
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTurn(int id, Turn turn)
+        public async Task<IActionResult> PutTurn(int id, TurnCreateDTO turnDto)
         {
-            if (id != turn.IdTurn)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(turn).State = EntityState.Modified;
+            var turn = await _context.Turns.FindAsync(id);
+            if (turn == null) return NotFound();
+
+            // Update only allowed properties (using the single DTO)
+            turn.Number = turnDto.Number;
+            turn.State = turnDto.State;
+            turn.ClientId = turnDto.ClientId;
+            turn.ServiceId = turnDto.ServiceId;
 
             try
             {

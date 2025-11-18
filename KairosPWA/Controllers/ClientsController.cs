@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
+using KairosPWA.DTOs;
 
 namespace KairosPWA.Controllers
 {
@@ -23,14 +24,24 @@ namespace KairosPWA.Controllers
 
         // GET: api/Clients
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
         {
-            return await _context.Clients.ToListAsync();
+            var clients = await _context.Clients.ToListAsync();
+
+            var clientsDto = clients.Select(c => new ClientDTO
+            {
+                IdClient = c.IdClient,
+                Id = c.Id,
+                Name = c.Name,
+                State = c.State
+            }).ToList();
+
+            return Ok(clientsDto);
         }
 
         // GET: api/Clients/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(int id)
+        public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
             var client = await _context.Clients.FindAsync(id);
 
@@ -39,49 +50,60 @@ namespace KairosPWA.Controllers
                 return NotFound();
             }
 
-            return client;
+            var clientDto = new ClientDTO
+            {
+                IdClient = client.IdClient,
+                Id = client.Id,
+                Name = client.Name,
+                State = client.State
+            };
+
+            return Ok(clientDto);
         }
 
         // PUT: api/Clients/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // To protect from overposting attacks, receive a DTO and map allowed fields
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, Client client)
+        public async Task<IActionResult> PutClient(int id, ClientDTO clientDto)
         {
-            if (id != client.IdClient)
+            if (id != clientDto.IdClient)
             {
                 return BadRequest();
             }
 
-            _context.Entry(client).State = EntityState.Modified;
+            var client = await _context.Clients.FindAsync(id);
+            if (client == null)
+            {
+                return NotFound();
+            }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ClientExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            client.Id = clientDto.Id;
+            client.Name = clientDto.Name;
+            client.State = clientDto.State;
+
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Clients
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // To protect from overposting attacks, receive a DTO and map to entity
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        public async Task<ActionResult<Client>> PostClient(ClientDTO clientDto)
         {
+            var client = new Client
+            {
+                Id = clientDto.Id,
+                Name = clientDto.Name,
+                State = clientDto.State
+            };
+
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetClient", new { id = client.IdClient }, client);
+            clientDto.IdClient = client.IdClient;
+
+            return CreatedAtAction(nameof(GetClient), new { id = client.IdClient }, clientDto);
         }
 
         // DELETE: api/Clients/5
