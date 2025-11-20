@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
@@ -24,23 +19,20 @@ namespace KairosPWA.Controllers
 
         // GET: api/Services
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Service>>> GetServices()
+        public async Task<ActionResult<IEnumerable<ServiceDTO>>> GetServices()
         {
-            return await _context.Services.ToListAsync();
-        }
+            var services = await _context.Services
+                .AsNoTracking()
+                .Select(s => new ServiceDTO
+                {
+                    IdService = s.IdService,
+                    Name = s.Name,
+                    Description = s.Description,
+                    State = s.State
+                })
+                .ToListAsync();
 
-        // GET: api/Services/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetService(int id)
-        {
-            var service = await _context.Services.FindAsync(id);
-
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            return service;
+            return Ok(services);
         }
 
         // PUT: api/Services/5

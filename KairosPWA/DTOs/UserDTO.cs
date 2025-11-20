@@ -10,12 +10,6 @@ namespace KairosPWA.DTOs
         [StringLength(100, ErrorMessage = "El nombre de usuario no puede superar 100 caracteres.")]
         public string Name { get; set; }
 
-        //En esta vaina no se supone que No se debe enviar la contraseña Andres???,
-        //Lo voy a dejar como está pero tenlo en cuenta.
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
-        public string Password { get; set; }
-
         [Required(ErrorMessage = "El estado del usuario es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del usuario no puede superar 20 caracteres.")]
         public string State { get; set; }

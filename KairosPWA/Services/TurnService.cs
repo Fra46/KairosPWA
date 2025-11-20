@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using KairosPWA.Data;
 using KairosPWA.DTOs;
+using KairosPWA.Enums;
 using KairosPWA.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,11 @@ namespace KairosPWA.Services
 
             var turnEntidad = _mapper.Map<Turn>(turnCreateDto);
             turnEntidad.FechaHora = DateTime.Now;
+
+            if (string.IsNullOrWhiteSpace(turnEntidad.State))
+            {
+                turnEntidad.State = TurnState.Pendiente.ToString();
+            }
 
             _context.Turns.Add(turnEntidad);
             await _context.SaveChangesAsync();
@@ -83,7 +89,16 @@ namespace KairosPWA.Services
             var turn = await _context.Turns.FindAsync(id);
             if (turn == null) return false;
 
-            turn.State = updatedTurn.State;
+            if (!string.IsNullOrWhiteSpace(updatedTurn.State))
+            {
+                if (!Enum.TryParse<TurnState>(updatedTurn.State, ignoreCase: true, out var stateEnum))
+                {
+                    throw new ArgumentException("Estado de turno inválido.");
+                }
+
+                turn.State = stateEnum.ToString();
+            }
+
             turn.ClientId = updatedTurn.ClientId;
             turn.ServiceId = updatedTurn.ServiceId;
 
@@ -93,21 +108,24 @@ namespace KairosPWA.Services
 
         public async Task<TurnDTO?> AdvanceTurnByServiceAsync(int serviceId)
         {
+            var pendingState = TurnState.Pendiente.ToString();
+            var attendedState = TurnState.Atendido.ToString();
+
             var turnToAttend = await _context.Turns
-                .Where(t => t.State == "Pendiente" && t.ServiceId == serviceId)
+                .Where(t => t.State == pendingState && t.ServiceId == serviceId)
                 .OrderBy(t => t.Number)
                 .FirstOrDefaultAsync();
 
             if (turnToAttend == null)
                 return null;
 
-            turnToAttend.State = "Atendido";
+            turnToAttend.State = attendedState;
             await _context.SaveChangesAsync();
 
             var nextTurn = await _context.Turns
                 .Include(t => t.Client)
                 .Include(t => t.Service)
-                .Where(t => t.State == "Pendiente" && t.ServiceId == serviceId)
+                .Where(t => t.State == pendingState && t.ServiceId == serviceId)
                 .OrderBy(t => t.Number)
                 .FirstOrDefaultAsync();
 
@@ -118,10 +136,15 @@ namespace KairosPWA.Services
         {
             var turn = await _context.Turns.FindAsync(id);
             if (turn == null) return false;
-            turn.State = newState;
+
+            if (!Enum.TryParse<TurnState>(newState, ignoreCase: true, out var stateEnum))
+            {
+                throw new ArgumentException("Estado de turno inválido.");
+            }
+
+            turn.State = stateEnum.ToString();
             await _context.SaveChangesAsync();
             return true;
         }
-
     }
 }

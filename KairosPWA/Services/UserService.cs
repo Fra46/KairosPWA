@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 using KairosPWA.Data;
 using KairosPWA.DTOs;
+using KairosPWA.Enums;
 using KairosPWA.Models;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Services
 {
@@ -20,27 +21,41 @@ namespace KairosPWA.Services
         public async Task<UserDTO> RegisterUserAsync(UserCreateDTO userCreateDto)
         {
             var exists = await _context.Users.AnyAsync(u => u.Name == userCreateDto.Name);
-            if (exists) throw new Exception("Ya existe un usuario con este nombre.");
+            if (exists)
+                throw new Exception("Ya existe un usuario con este nombre.");
 
             userCreateDto.Password = BCrypt.Net.BCrypt.HashPassword(userCreateDto.Password);
+
             var userEntity = _mapper.Map<User>(userCreateDto);
+
+            if (string.IsNullOrWhiteSpace(userEntity.State))
+            {
+                userEntity.State = UserState.Activo.ToString();
+            }
 
             _context.Users.Add(userEntity);
             await _context.SaveChangesAsync();
 
             await _context.Entry(userEntity).Reference(u => u.Rol).LoadAsync();
+
             return _mapper.Map<UserDTO>(userEntity);
         }
 
         public async Task<List<UserDTO>> GetAllUsersAsync()
         {
-            var users = await _context.Users.Include(u => u.Rol).ToListAsync();
+            var users = await _context.Users
+                .Include(u => u.Rol)
+                .ToListAsync();
+
             return _mapper.Map<List<UserDTO>>(users);
         }
 
         public async Task<UserDTO?> GetUserByIdAsync(int id)
         {
-            var user = await _context.Users.Include(u => u.Rol).FirstOrDefaultAsync(u => u.IdUser == id);
+            var user = await _context.Users
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.IdUser == id);
+
             return user != null ? _mapper.Map<UserDTO>(user) : null;
         }
 
@@ -50,9 +65,24 @@ namespace KairosPWA.Services
             if (user == null) return false;
 
             user.Name = editDto.Name;
-            user.Password = BCrypt.Net.BCrypt.HashPassword(editDto.Password);
-            user.State = editDto.State;
+
+            if (!string.IsNullOrWhiteSpace(editDto.Password))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(editDto.Password);
+            }
+
+            if (!string.IsNullOrWhiteSpace(editDto.State))
+            {
+                if (!Enum.TryParse<UserState>(editDto.State, ignoreCase: true, out var stateEnum))
+                {
+                    throw new ArgumentException("Estado de usuario inválido.");
+                }
+
+                user.State = stateEnum.ToString();
+            }
+
             user.RolId = editDto.RolId;
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -66,9 +96,26 @@ namespace KairosPWA.Services
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return false;
+
             user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<User?> AuthenticateUserAsync(string username, string password)
+        {
+            var user = await _context.Users
+                .Include(u => u.Rol)
+                .FirstOrDefaultAsync(u => u.Name == username);
+
+            if (user == null)
+                return null;
+
+            var passwordValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            if (!passwordValid)
+                return null;
+
+            return user;
         }
     }
 }

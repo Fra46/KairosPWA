@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
+using KairosPWA.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<ServiceService>();
 builder.Services.AddScoped<TurnService>();
+builder.Services.AddScoped<ClientService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -66,25 +68,33 @@ builder.Services
         };
     });
 
-builder.Services.AddScoped<JwtTokenGenerator>();
-
 builder.Services.AddAuthorization();
+
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/error");
+    app.UseHsts();
+}
+
+app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
-//app.UseMiddleware<RolMiddleware>("Admin");
+app.UseMiddleware<RoleMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

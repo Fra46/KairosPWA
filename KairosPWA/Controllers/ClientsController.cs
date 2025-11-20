@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
@@ -89,7 +84,7 @@ namespace KairosPWA.Controllers
         // POST: api/Clients
         // To protect from overposting attacks, receive a DTO and map to entity
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(ClientDTO clientDto)
+        public async Task<ActionResult<ClientDTO>> PostClient(ClientDTO clientDto)
         {
             var client = new Client
             {
@@ -104,27 +99,6 @@ namespace KairosPWA.Controllers
             clientDto.IdClient = client.IdClient;
 
             return CreatedAtAction(nameof(GetClient), new { id = client.IdClient }, clientDto);
-        }
-
-        // DELETE: api/Clients/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClient(int id)
-        {
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
-            {
-                return NotFound();
-            }
-
-            _context.Clients.Remove(client);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool ClientExists(int id)
-        {
-            return _context.Clients.Any(e => e.IdClient == id);
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using KairosPWA.Data;
+﻿using KairosPWA.Data;
+using KairosPWA.Enums;
 using KairosPWA.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Services
 {
@@ -15,6 +16,11 @@ namespace KairosPWA.Services
 
         public async Task<Service> CreateServiceAsync(Service service)
         {
+            if (string.IsNullOrWhiteSpace(service.State))
+            {
+                service.State = ServiceState.Disponible.ToString();
+            }
+
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
             return service;
@@ -34,8 +40,20 @@ namespace KairosPWA.Services
         {
             var service = await _context.Services.FindAsync(id);
             if (service == null) return false;
+
             service.Name = updatedService.Name;
             service.Description = updatedService.Description;
+
+            if (!string.IsNullOrWhiteSpace(updatedService.State))
+            {
+                if (!Enum.TryParse<ServiceState>(updatedService.State, ignoreCase: true, out var stateEnum))
+                {
+                    throw new ArgumentException("Estado de servicio inválido.");
+                }
+
+                service.State = stateEnum.ToString();
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -44,6 +62,7 @@ namespace KairosPWA.Services
         {
             var service = await _context.Services.FindAsync(id);
             if (service == null) return false;
+
             _context.Services.Remove(service);
             await _context.SaveChangesAsync();
             return true;

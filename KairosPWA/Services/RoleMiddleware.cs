@@ -15,7 +15,6 @@ namespace KairosPWA.Middleware
         private static readonly string[] _excludedRoutes = new[]
         {
             "/api/users/login",
-            "/api/users/register",
             "/swagger"
         };
 
@@ -28,8 +27,10 @@ namespace KairosPWA.Middleware
         public async Task Invoke(HttpContext context)
         {
             var path = context.Request.Path.Value?.ToLower() ?? "";
+            var method = context.Request.Method?.ToUpperInvariant() ?? "";
 
-            if (_excludedRoutes.Any(r => path.StartsWith(r)))
+            if (_excludedRoutes.Any(r => path.StartsWith(r)) ||
+                (path == "/api/users" && method == "POST"))
             {
                 await _next(context);
                 return;
@@ -42,7 +43,6 @@ namespace KairosPWA.Middleware
                 return;
             }
 
-
             var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
             if (role is null)
@@ -51,7 +51,6 @@ namespace KairosPWA.Middleware
                 await WriteJson(context, StatusCodes.Status403Forbidden, "Acceso denegado: no tiene rol asignado");
                 return;
             }
-
 
             _logger.LogInformation("Acceso permitido a {Path} con rol {Role}", path, role);
 

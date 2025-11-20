@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-const API_URL = "https://localhost:7142/api/login";
+import { userService } from '../services/userService';
 
 function LoginForm() {
-  const [credenciales, setCredenciales] = useState({ username: '', password: '' });
+  const [credenciales, setCredenciales] = useState({ name: '', password: '' });
   const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -14,22 +13,23 @@ function LoginForm() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setError('');
     try {
-      const response = await axios.post(API_URL, credenciales);
-      const data = response.data;
+      const data = await userService.Login(credenciales);
       sessionStorage.setItem("token", data.token);
-      sessionStorage.setItem("username", data.user.username);
-      setUser(data.user.username);
-      setCredenciales({ username: '', password: '' });
-      // Aquí navegas al dashboard con React Router según tu app
-    } catch (error) {
-      alert(error.response?.data?.message || "Credenciales incorrectas");
+      sessionStorage.setItem("name", data.user.name);
+      setUser(data.user.name);
+      setCredenciales({ name: '', password: '' });
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Credenciales incorrectas");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Inicio de sesión</h2>
+      {error && <div style={{ color: 'red' }}>{error}</div>}
       {!user && (
         <>
           <input
@@ -46,10 +46,10 @@ function LoginForm() {
             value={credenciales.password}
             onChange={handleChange}
           /><br />
-          <button type="submit">Iniciar sesión</button>
+          <button type="submit">Iniciar sesion</button>
         </>
       )}
-      {user && <p>Sesión activa como <strong>{user}</strong></p>}
+      {user && <p>Sesion activa como <strong>{user}</strong></p>}
     </form>
   );
 }
