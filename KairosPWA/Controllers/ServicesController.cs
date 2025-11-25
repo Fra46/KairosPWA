@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using KairosPWA.Data;
 using KairosPWA.Models;
 using KairosPWA.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KairosPWA.Controllers
 {
@@ -19,6 +20,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Services
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ServiceDTO>>> GetServices()
         {
             var services = await _context.Services
@@ -36,9 +38,9 @@ namespace KairosPWA.Controllers
         }
 
         // PUT: api/Services/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutService(int id, ServiceDTO serviceDto)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> PutService(int id, [FromBody] ServiceDTO serviceDto)
         {
             if (!ModelState.IsValid)
             {
@@ -51,7 +53,7 @@ namespace KairosPWA.Controllers
                 return NotFound();
             }
 
-            // Update only allowed fields from DTO
+            // Actualizar solo campos permitidos
             service.Name = serviceDto.Name;
             service.Description = serviceDto.Description;
             service.State = serviceDto.State;
@@ -76,9 +78,9 @@ namespace KairosPWA.Controllers
         }
 
         // POST: api/Services
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Service>> PostService(ServiceDTO serviceDto)
+        [Authorize(Roles = "Administrador")]
+        public async Task<ActionResult<ServiceDTO>> PostService([FromBody] ServiceDTO serviceDto)
         {
             if (!ModelState.IsValid)
             {
@@ -95,11 +97,14 @@ namespace KairosPWA.Controllers
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetService", new { id = service.IdService }, service);
+            serviceDto.IdService = service.IdService;
+
+            return CreatedAtAction(nameof(GetServices), new { id = service.IdService }, serviceDto);
         }
 
         // DELETE: api/Services/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteService(int id)
         {
             var service = await _context.Services.FindAsync(id);

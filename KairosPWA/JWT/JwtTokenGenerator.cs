@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using KairosPWA.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -14,7 +15,7 @@ namespace KairosPWA.JWT
             _config = config;
         }
 
-        public string GenerateToken(string userName, string role)
+        public string GenerateToken(User user)
         {
             var keyString = _config["JwtSettings:Key"];
 
@@ -31,14 +32,14 @@ namespace KairosPWA.JWT
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, userName)
+                new Claim(ClaimTypes.NameIdentifier, user.IdUser.ToString())
             };
 
-            if (!string.IsNullOrWhiteSpace(role))
+            if (!string.IsNullOrWhiteSpace(user.Rol?.Name))
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                claims.Add(new Claim(ClaimTypes.Role, user.Rol.Name));
             }
 
             var issuer = _config["JwtSettings:Issuer"];

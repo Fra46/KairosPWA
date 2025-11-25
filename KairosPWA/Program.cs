@@ -1,31 +1,35 @@
 using KairosPWA.Data;
+using KairosPWA.Hubs;
 using KairosPWA.JWT;
 using KairosPWA.MappingProfiles;
+using KairosPWA.Middleware;
 using KairosPWA.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.OpenApi.Models;
 using System.Security.Claims;
-using KairosPWA.Middleware;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Validar clave JWT
 var jwtKey = builder.Configuration["JwtSettings:Key"];
 if (string.IsNullOrWhiteSpace(jwtKey) || Encoding.UTF8.GetBytes(jwtKey).Length < 32)
 {
     throw new InvalidOperationException("JwtSettings:Key no configurada o demasiado corta. Usa user-secrets o variable de entorno con al menos 32 bytes.");
 }
 
-// Add services to the container.
+// DbContext
 var ConeccionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseSqlServer(ConeccionString));
 
+// AutoMapper
 builder.Services.AddAutoMapper(typeof(UserProfile), typeof(TurnProfile));
 
+// Add services to the container.
 builder.Services.AddScoped<JwtTokenGenerator>();
-
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<ServiceService>();
@@ -35,7 +39,34 @@ builder.Services.AddScoped<ClientService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Nuvia API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Autenticación JWT usando Bearer. Ejemplo: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -48,7 +79,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Configura autenticacion JWT
+// Autenticacion JWT
 var jwtkey = builder.Configuration["JwtSettings:Key"];
 
 builder.Services
@@ -72,6 +103,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHealthChecks();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -94,9 +127,15 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
-app.UseMiddleware<RoleMiddleware>();
 app.UseAuthorization();
 
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), branch =>
+{
+    branch.UseMiddleware<Middleware>();
+});
+
 app.MapControllers();
+
+app.MapHub<NotificationsHub>("/Hubs/NotificationsHub");
 
 app.Run();

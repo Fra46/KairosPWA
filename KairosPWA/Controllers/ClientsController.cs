@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KairosPWA.Data;
-using KairosPWA.Models;
+﻿using KairosPWA.Data;
 using KairosPWA.DTOs;
+using KairosPWA.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrador")]
     public class ClientsController : ControllerBase
     {
         private readonly ConnectionContext _context;

@@ -15,5 +15,6 @@ namespace KairosPWA.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Turn> Turns { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserServiceTurnCounter> UserServiceTurnCounters { get; set; }
     }
 }

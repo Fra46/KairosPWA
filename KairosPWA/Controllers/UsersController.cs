@@ -6,6 +6,7 @@ using KairosPWA.Models;
 using KairosPWA.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KairosPWA.Controllers
 {
@@ -24,6 +25,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Users
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -32,6 +34,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<UserDTO>> GetUser(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -43,6 +46,7 @@ namespace KairosPWA.Controllers
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> PutUser(int id, [FromBody] UserCreateDTO userDto)
         {
             if (!ModelState.IsValid)
@@ -58,6 +62,7 @@ namespace KairosPWA.Controllers
 
         // POST: api/Users
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         public async Task<ActionResult<UserDTO>> PostUser([FromBody] UserCreateDTO userDto)
         {
             if (!ModelState.IsValid)
@@ -79,12 +84,13 @@ namespace KairosPWA.Controllers
 
         // POST: api/Users/Login
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult> Login([FromBody] LoginDTO loginDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _userService.AuthenticateUserAsync(loginDto.User, loginDto.Password);
+            var user = await _userService.AuthenticateUserAsync(loginDto.UserName, loginDto.Password);
 
             if (user == null)
             {
@@ -93,7 +99,7 @@ namespace KairosPWA.Controllers
 
             var rolName = user.Rol?.Name ?? "User";
 
-            var token = _jwtTokenGenerator.GenerateToken(user.Name, rolName);
+            var token = _jwtTokenGenerator.GenerateToken(user);
 
             return Ok(new
             {
@@ -101,11 +107,18 @@ namespace KairosPWA.Controllers
                 user = new
                 {
                     id = user.IdUser,
-                    name = user.Name,
-                    userName = user.Name,
+                    name = user.UserName,
                     role = rolName
                 }
             });
+        }
+
+        [HttpGet("turns-by-service")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> GetTurnsByUserAndService()
+        {
+            var data = await _userService.GetUserServiceTurnCountersAsync();
+            return Ok(data);
         }
     }
 }
