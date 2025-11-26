@@ -73,7 +73,6 @@ export default function ListarUsuarios() {
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Email</th>
                     <th>Rol</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -83,16 +82,17 @@ export default function ListarUsuarios() {
                 <tbody>
                   {users.map((u) => (
                     <tr key={u.idUser}>
-                      <td>{u.user}</td>
+                      {/* Nombre */}
+                      <td>{u.name}</td>
 
-                      <td>{u.email || "-"}</td>
-
+                      {/* Rol */}
                       <td>
                         <span className="badge bg-primary">
                           {u.rolName}
                         </span>
                       </td>
 
+                      {/* Estado */}
                       <td>
                         <span
                           className={`badge ${u.state === "Activo" ? "bg-success" : "bg-secondary"
@@ -102,6 +102,7 @@ export default function ListarUsuarios() {
                         </span>
                       </td>
 
+                      {/* Acciones */}
                       <td>
                         <button
                           className="btn btn-sm btn-danger"

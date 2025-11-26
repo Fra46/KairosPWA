@@ -80,6 +80,22 @@ namespace KairosPWA.Controllers
             return Ok(new { message = "Turno cancelado correctamente." });
         }
 
+        // GET api/turns/pending
+        [HttpGet("pending")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPending([FromQuery] int? serviceId = null)
+        {
+            if (serviceId.HasValue && serviceId.Value > 0)
+            {
+                // Si algún día quieres filtrar por servicio
+                var byService = await _turnService.GetPendingTurnsByServiceAsync(serviceId.Value);
+                return Ok(byService);
+            }
+
+            var all = await _turnService.GetAllPendingTurnsAsync();
+            return Ok(all);
+        }
+
         // GET api/turns/service/{serviceId}/summary
         [HttpGet("service/{serviceId}/summary")]
         [AllowAnonymous]
@@ -139,6 +155,34 @@ namespace KairosPWA.Controllers
             return Ok(nextTurn);
         }
 
+        // POST api/turns/service/{serviceId}/complete
+        [HttpPost("service/{serviceId}/complete")]
+        [Authorize(Roles = "Administrador,Empleado")]
+        public async Task<IActionResult> CompleteCurrentTurn(
+            int serviceId,
+            [FromBody] AdvanceTurnRequestDTO? request)
+        {
+            int? userId = null;
+
+            // Reutiliza tu lógica actual para sacar el userId de los claims...
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
+                userId = parsedId;
+
+            // Fallback: si no está en claims, usa el que venga en el body
+            if (userId == null && request != null && request.UserId > 0)
+                userId = request.UserId;
+
+            if (userId == null)
+                return Unauthorized(new { message = "No se pudo determinar el usuario actual." });
+
+            var completed = await _turnService.CompleteCurrentTurnAsync(serviceId, userId.Value);
+
+            if (completed == null)
+                return Ok(new { message = "No hay turno en atención para este servicio." });
+
+            return Ok(completed);
+        }
 
         // GET api/turns/public/status?document=123&serviceId=1
         [HttpGet("public/status")]

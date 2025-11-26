@@ -13,7 +13,6 @@ namespace KairosPWA.DTOs
         [Required(ErrorMessage = "El estado del usuario es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del usuario no puede superar 20 caracteres.")]
         public string State { get; set; }
-        public string Email { get; set; }
 
         [Required(ErrorMessage = "El rol es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El Id de rol debe ser mayor que cero.")]
@@ -35,7 +34,6 @@ namespace KairosPWA.DTOs
         [Required(ErrorMessage = "El estado del usuario es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del usuario no puede superar 20 caracteres.")]
         public string State { get; set; }
-        public string Email { get; set; }
 
         [Required(ErrorMessage = "El rol es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El Id de rol debe ser mayor que cero.")]

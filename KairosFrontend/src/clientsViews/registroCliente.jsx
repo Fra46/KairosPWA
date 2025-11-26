@@ -11,8 +11,6 @@ export default function RegistroCliente() {
 
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
-    phone: "",
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -45,9 +43,6 @@ export default function RegistroCliente() {
       const response = await clientService.Create({
         id: documento,                 // ← documento del cliente (string)
         name: formData.name.trim(),
-        // Estos campos no existen en el DTO, pero el binder los ignora sin problema
-        email: formData.email || null,
-        phone: formData.phone || null,
         state: "Activo",
       })
 
@@ -123,32 +118,6 @@ export default function RegistroCliente() {
                   onChange={handleChange}
                   disabled={loading}
                   required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Correo electrónico (opcional)</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="form-control form-control-lg"
-                  placeholder="ejemplo@correo.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label fw-semibold">Teléfono (opcional)</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="form-control form-control-lg"
-                  placeholder="Número de contacto"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  disabled={loading}
                 />
               </div>
 

@@ -5,7 +5,8 @@ import { startConnection } from "../services/signalR"
 import { turnService } from "../services/turnService"
 
 export default function DisplayView() {
-  const [turns, setTurns] = useState([])
+  const [currentTurn, setCurrentTurn] = useState(null)   // turno en atención
+  const [pendingTurns, setPendingTurns] = useState([])   // cola pendiente
   const [currentTime, setCurrentTime] = useState(new Date())
   const [loading, setLoading] = useState(true)
 
@@ -23,32 +24,24 @@ export default function DisplayView() {
 
   const loadTurns = async () => {
     try {
-      // 1) últimos turnos llamados (atendidos)
-      const recentCalled = await turnService.GetRecentCalled(20)
+      // 1) turno(s) en atención (estado EnAtencion en el backend)
+      const recentCalled = await turnService.GetRecentCalled(1)
 
-      // 2) turnos pendientes actuales
+      // 2) turnos pendientes actuales (estado Pendiente en el backend)
       const pending = await turnService.GetPending()
 
-      // Normalizamos:
-      // - los llamados recientes se mostrarán como "En atención"
-      // - los pendientes se quedan con su estado real
-      const normalizedCalled = (recentCalled || []).map((t) => ({
-        ...t,
-        state: "En atención",
-      }))
+      // Tomamos SOLO el último turno en atención (o null si no hay)
+      const lastCalled =
+        recentCalled && recentCalled.length > 0 ? recentCalled[0] : null
 
-      const normalizedPending = pending || []
-
-      const all = [...normalizedCalled, ...normalizedPending]
-
-      setTurns(all)
+      setCurrentTurn(lastCalled)
+      setPendingTurns(pending || [])
     } catch (err) {
       console.error("Error loading turns for display:", err)
     } finally {
       setLoading(false)
     }
   }
-
 
   const setupSignalR = async () => {
     try {
@@ -79,9 +72,6 @@ export default function DisplayView() {
     })
   }
 
-  const turnsEnAtencion = turns.filter((t) => t.state === "En atención")
-  const turnsPendientes = turns.filter((t) => t.state === "Pendiente")
-
   return (
     <div className="display-container">
       <div className="container-fluid py-4">
@@ -109,7 +99,9 @@ export default function DisplayView() {
           <div className="col-md-6 text-end">
             <div className="text-white">
               <div className="fs-2 fw-bold">{formatTime(currentTime)}</div>
-              <div className="fs-6 text-capitalize">{formatDate(currentTime)}</div>
+              <div className="fs-6 text-capitalize">
+                {formatDate(currentTime)}
+              </div>
             </div>
           </div>
         </div>
@@ -125,37 +117,40 @@ export default function DisplayView() {
           </div>
         ) : (
           <>
-            {/* Turnos en atención */}
-            {turnsEnAtencion.length > 0 && (
-              <div className="mb-4">
-                <h2 className="text-white mb-3 fs-3 fw-bold">
-                  <i className="bi bi-megaphone me-2"></i>
-                  EN ATENCIÓN
-                </h2>
+            {/* Turno en atención / actual */}
+            <div className="mb-4">
+              <h2 className="text-white mb-3 fs-3 fw-bold">
+                <i className="bi bi-megaphone me-2"></i>
+                EN ATENCIÓN
+              </h2>
+
+              {currentTurn ? (
                 <div className="row g-3">
-                  {turnsEnAtencion.map((turn) => (
-                    <div key={turn.idTurn} className="col-md-6 col-lg-4">
-                      <div className="display-turn-card fade-in">
-                        <div className="display-turn-number pulse">
-                          {turn.number}
-                        </div>
-                        <div className="display-service-name mt-2">
-                          {turn.serviceName}
-                        </div>
-                        <div className="text-muted mt-2">
-                          <i className="bi bi-person me-2"></i>
-                          {turn.clientName || "Cliente"}
-                        </div>
-                        <div className="text-muted small mt-1">
-                          <i className="bi bi-clock-history me-1"></i>
-                          Llamado recientemente
-                        </div>
+                  <div className="col-md-8 col-lg-6">
+                    <div className="display-turn-card fade-in">
+                      <div className="display-turn-number pulse">
+                        {currentTurn.number}
+                      </div>
+                      <div className="display-service-name mt-2">
+                        {currentTurn.serviceName}
+                      </div>
+                      <div className="text-muted mt-2">
+                        <i className="bi bi-person me-2"></i>
+                        {currentTurn.clientName || "Cliente"}
+                      </div>
+                      <div className="text-muted small mt-1">
+                        <i className="bi bi-clock-history me-1"></i>
+                        En atención
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="alert alert-light bg-opacity-10 text-black">
+                  No hay turno en atención en este momento.
+                </div>
+              )}
+            </div>
 
             {/* Turnos pendientes */}
             <div>
@@ -163,14 +158,17 @@ export default function DisplayView() {
                 <i className="bi bi-list-ol me-2"></i>
                 PENDIENTES
               </h2>
-              {turnsPendientes.length === 0 ? (
+              {pendingTurns.length === 0 ? (
                 <div className="alert alert-light bg-opacity-10 text-black text-center">
                   No hay turnos pendientes en este momento.
                 </div>
               ) : (
                 <div className="row g-3">
-                  {turnsPendientes.map((turn) => (
-                    <div key={turn.idTurn} className="col-sm-6 col-md-4 col-lg-3">
+                  {pendingTurns.map((turn) => (
+                    <div
+                      key={turn.idTurn}
+                      className="col-sm-6 col-md-4 col-lg-3"
+                    >
                       <div className="display-turn-card small fade-in">
                         <div className="display-turn-number-sm">
                           {turn.number}

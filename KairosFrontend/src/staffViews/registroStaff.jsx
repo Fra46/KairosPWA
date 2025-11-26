@@ -39,42 +39,69 @@ export default function RegistroStaff() {
   }, [])
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
     setError("")
+    setSuccess(false)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError("")
+    setSuccess(false)
+
+    // Validaciones básicas
+    if (!formData.userName.trim()) {
+      setError("El nombre de usuario es obligatorio.")
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.")
+      return
+    }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden")
+      setError("Las contraseñas no coinciden.")
       return
     }
 
     if (!formData.rolId) {
-      setError("Debe seleccionar un rol")
+      setError("Debe seleccionar un rol.")
       return
     }
 
     setLoading(true)
-    setError("")
 
     try {
+      // Usamos directamente el rolId seleccionado
+      const rolId = Number(formData.rolId)
+
       await userService.Create({
-        name: formData.userName.trim(),
+        userName: formData.userName.trim(),
         password: formData.password,
         state: "Activo",
-        rolId: Number(formData.rolId),
+        rolId,
       })
 
       setSuccess(true)
-      setTimeout(() => navigate("/admin/usuarios"), 1500)
+
+      // Ir a la lista de usuarios
+      navigate("/admin/usuarios")
     } catch (err) {
       console.error(err)
-      const message =
-        err.response?.data?.message ||
-        err.response?.data?.title ||
+      const data = err.response?.data
+
+      let message =
+        data?.message ||
+        data?.title ||
         "Error al registrar usuario"
+
+      if (data?.errors) {
+        const firstError = Object.values(data.errors)[0]?.[0]
+        if (firstError) message = firstError
+      }
+
       setError(message)
     } finally {
       setLoading(false)
@@ -83,21 +110,23 @@ export default function RegistroStaff() {
 
   return (
     <div className="container py-5">
-
       <div className="row justify-content-center">
         <div className="col-md-8 col-lg-6">
-
           <div className="card shadow-lg border-0 fade-in">
             <div className="card-header bg-primary text-white">
               <h2 className="mb-0 h4">Registrar Personal</h2>
             </div>
 
             <div className="card-body p-4">
-
               {error && <div className="alert alert-danger">{error}</div>}
-              {success && <div className="alert alert-success">Registrado exitosamente</div>}
+              {success && (
+                <div className="alert alert-success">
+                  Usuario registrado correctamente.
+                </div>
+              )}
 
               <form onSubmit={handleSubmit}>
+                {/* Usuario */}
                 <div className="mb-3">
                   <label className="form-label fw-semibold">Usuario</label>
                   <input
@@ -110,17 +139,7 @@ export default function RegistroStaff() {
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Correo</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-
+                {/* Contraseñas */}
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label className="form-label fw-semibold">Contraseña</label>
@@ -147,6 +166,7 @@ export default function RegistroStaff() {
                   </div>
                 </div>
 
+                {/* Rol */}
                 <div className="mb-4">
                   <label className="form-label fw-semibold">Rol</label>
                   <select
@@ -163,9 +183,14 @@ export default function RegistroStaff() {
                   </select>
                 </div>
 
+                {/* Botones */}
                 <div className="d-flex gap-2">
-                  <button className="btn btn-primary flex-fill" disabled={loading}>
-                    Registrar
+                  <button
+                    type="submit"
+                    className="btn btn-primary flex-fill"
+                    disabled={loading}
+                  >
+                    {loading ? "Registrando..." : "Registrar"}
                   </button>
 
                   <button
@@ -176,15 +201,11 @@ export default function RegistroStaff() {
                     Cancelar
                   </button>
                 </div>
-
               </form>
-
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   )
 }

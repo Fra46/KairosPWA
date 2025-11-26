@@ -10,8 +10,6 @@ export default function Home() {
   const documentTypes = [
     { id: "cedula", label: "Cédula de Ciudadanía", icon: "🪪" },
     { id: "cedula_extranjera", label: "Cédula de Extranjería", icon: "🛂" },
-    { id: "pasaporte", label: "Pasaporte", icon: "📘" },
-    { id: "registro_civil", label: "Registro Civil", icon: "📄" },
     { id: "tarjeta_identidad", label: "Tarjeta de Identidad", icon: "🆔" },
   ]
 

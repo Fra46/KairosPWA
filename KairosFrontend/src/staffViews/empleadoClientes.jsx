@@ -35,12 +35,10 @@ export default function EmpleadoClientes() {
 
     const doc = (c.id || "").toString().toLowerCase()
     const name = (c.name || "").toLowerCase()
-    const email = (c.email || "").toLowerCase()
 
     return (
       doc.includes(normalizedSearch) ||
-      name.includes(normalizedSearch) ||
-      email.includes(normalizedSearch)
+      name.includes(normalizedSearch)
     )
   })
 
@@ -69,7 +67,7 @@ export default function EmpleadoClientes() {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Buscar por nombre, documento o email..."
+                  placeholder="Buscar por nombre, documento..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -120,14 +118,6 @@ export default function EmpleadoClientes() {
                         Nombre
                       </th>
                       <th>
-                        <i className="bi bi-envelope me-2"></i>
-                        Email
-                      </th>
-                      <th>
-                        <i className="bi bi-telephone me-2"></i>
-                        Teléfono
-                      </th>
-                      <th>
                         <i className="bi bi-circle-fill me-2"></i>
                         Estado
                       </th>
@@ -138,8 +128,6 @@ export default function EmpleadoClientes() {
                       <tr key={c.idClient}>
                         <td className="fw-semibold">{c.id}</td>
                         <td>{c.name}</td>
-                        <td className="text-muted">{c.email || "-"}</td>
-                        <td className="text-muted">{c.phone || "-"}</td>
                         <td>
                           <span
                             className={`badge ${

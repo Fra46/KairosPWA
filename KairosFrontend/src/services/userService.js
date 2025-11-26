@@ -20,8 +20,13 @@ export const userService = {
     },
 
     Create: async (userData) => {
-        const response = await api.post('/users', userData);
-        return response.data;
+        const response = await api.post("/users", {
+            name: userData.userName,
+            password: userData.password,
+            state: userData.state ?? "Activo",
+            rolId: userData.rolId,
+        })
+        return response.data
     },
 
     Update: async (id, userData) => {

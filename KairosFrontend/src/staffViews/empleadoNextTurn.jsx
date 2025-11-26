@@ -51,11 +51,6 @@ export default function EmpleadoNextTurn() {
       return;
     }
 
-    if (!user?.id) {
-      setError("No se pudo determinar el usuario actual.");
-      return;
-    }
-
     setError("");
     setInfo("");
     setLoading(true);
@@ -67,17 +62,60 @@ export default function EmpleadoNextTurn() {
       );
 
       if (response?.message) {
+        // Por ejemplo: "No hay más turnos pendientes"
         setCurrentTurn(null);
         setInfo(response.message);
         return;
       }
 
+      // Turno pasa a "EnAtencion" → lo mostramos como actual
       setCurrentTurn(response);
-      setInfo("Turno asignado correctamente.");
+      setInfo("Turno llamado correctamente.");
     } catch (err) {
       console.error(err);
       setError(
         err.response?.data?.message || "Error al avanzar turno."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleComplete = async () => {
+    if (!selectedService) {
+      setError("Debe seleccionar un servicio.");
+      return;
+    }
+
+    if (!currentTurn) {
+      setError("No hay turno en atención para este servicio.");
+      return;
+    }
+
+    setError("");
+    setInfo("");
+    setLoading(true);
+
+    try {
+      const response = await turnService.CompleteCurrent(
+        selectedService.idService,
+        user.id
+      );
+
+      if (response?.message) {
+        setInfo(response.message);
+        return;
+      }
+
+      // El turno completado ya NO debe mostrarse como actual
+      setCurrentTurn(null);
+      setInfo("Turno marcado como atendido.");
+    } catch (err) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+        "Error al marcar el turno como atendido."
       );
     } finally {
       setLoading(false);
@@ -110,11 +148,19 @@ export default function EmpleadoNextTurn() {
 
       {/* Botón llamar turno */}
       <button
-        className="btn btn-primary mb-4"
+        className="btn btn-warning me-2"
         onClick={handleAdvance}
-        disabled={loading || !selectedService}
+        disabled={loading}
       >
-        {loading ? "Llamando..." : "Llamar Siguiente Turno"}
+        Llamar Siguiente Turno
+      </button>
+
+      <button
+        className="btn btn-success"
+        onClick={handleComplete}
+        disabled={loading || !currentTurn}
+      >
+        Marcar como Atendido
       </button>
 
       {/* Mensajes */}

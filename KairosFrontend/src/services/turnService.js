@@ -52,6 +52,13 @@ export const turnService = {
         return response.data;
     },
 
+    // Turnos pendientes para la Pantalla
+    GetPending: async (serviceId) => {
+        const response = await api.get('/turns/pending', {
+            params: serviceId ? { serviceId } : {},
+        });
+        return response.data;
+    },
 
     // Estado del turno de un cliente para un servicio
     GetPublicStatus: async (document, serviceId) => {
@@ -65,6 +72,13 @@ export const turnService = {
     GetRecentCalled: async (count = 20) => {
         const response = await api.get('/turns/display/recent', {
             params: { count },
+        });
+        return response.data;
+    },
+
+    CompleteCurrent: async (serviceId, userId) => {
+        const response = await api.post(`/turns/service/${serviceId}/complete`, {
+            userId,
         });
         return response.data;
     }

@@ -199,6 +199,20 @@ namespace KairosPWA.Services
             return _mapper.Map<List<TurnDTO>>(turns);
         }
 
+        public async Task<List<TurnDTO>> GetAllPendingTurnsAsync()
+        {
+            var pendingState = TurnState.Pendiente.ToString();
+
+            var turns = await _context.Turns
+                .Include(t => t.Client)
+                .Include(t => t.Service)
+                .Where(t => t.State == pendingState)
+                .OrderBy(t => t.Number)
+                .ToListAsync();
+
+            return _mapper.Map<List<TurnDTO>>(turns);
+        }
+
         public async Task<List<TurnDTO>> GetPendingTurnsByServiceAsync(int serviceId)
         {
             var turns = await _context.Turns
@@ -255,12 +269,10 @@ namespace KairosPWA.Services
             return true;
         }
 
-        // ⚠ IMPORTANTE: ahora devolvemos el TURNO LLAMADO (Atendido),
-        // el mismo que se ve como “Llamando” en la Pantalla.
         public async Task<TurnDTO?> AdvanceTurnByServiceAsync(int serviceId, int userId)
         {
             var pendingState = TurnState.Pendiente.ToString();
-            var attendedState = TurnState.Atendido.ToString();
+            var inServiceState = TurnState.EnAtencion.ToString();
 
             var turnToAttend = await _context.Turns
                 .Include(t => t.Client)
@@ -272,16 +284,47 @@ namespace KairosPWA.Services
             if (turnToAttend == null)
                 return null;
 
-            // Marcar como atendido
-            turnToAttend.State = attendedState;
+            // AHORA SOLO PASA A "EnAtencion"
+            turnToAttend.State = inServiceState;
             await _context.SaveChangesAsync();
 
-            // Registrar en el contador de turnos gestionados por el empleado
+            // (Si quieres contar el turno como gestionado al final, quita de aquí el RegisterManagedTurnAsync
+            //  y ponlo en CompleteCurrentTurnAsync. Si te vale contarlo al llamarlo, déjalo.)
             await _userService.RegisterManagedTurnAsync(userId, serviceId);
 
             var dto = _mapper.Map<TurnDTO>(turnToAttend);
 
-            // Notificar a todos (Home + Pantalla)
+            await _hubContext.Clients.All.SendAsync("TurnUpdated", new
+            {
+                serviceId = serviceId
+            });
+
+            return dto;
+        }
+
+        public async Task<TurnDTO?> CompleteCurrentTurnAsync(int serviceId, int userId)
+        {
+            var inServiceState = TurnState.EnAtencion.ToString();
+            var attendedState = TurnState.Atendido.ToString();
+
+            var current = await _context.Turns
+                .Include(t => t.Client)
+                .Include(t => t.Service)
+                .Where(t => t.State == inServiceState && t.ServiceId == serviceId)
+                .OrderBy(t => t.Number)
+                .FirstOrDefaultAsync();
+
+            if (current == null)
+                return null;
+
+            current.State = attendedState;
+            await _context.SaveChangesAsync();
+
+            // Si prefieres contar aquí el turno gestionado, este es buen sitio
+            // await _userService.RegisterManagedTurnAsync(userId, serviceId);
+
+            var dto = _mapper.Map<TurnDTO>(current);
+
             await _hubContext.Clients.All.SendAsync("TurnUpdated", new
             {
                 serviceId = serviceId
@@ -328,16 +371,15 @@ namespace KairosPWA.Services
         }
 
         // Últimos N turnos llamados (Atendido) para la Pantalla
-        public async Task<List<TurnDTO>> GetRecentCalledTurnsAsync(int count)
+        public async Task<List<TurnDTO>> GetRecentCalledTurnsAsync(int count = 20)
         {
-            var attendedState = TurnState.Atendido.ToString();
+            var inServiceState = TurnState.EnAtencion.ToString();
 
             var turns = await _context.Turns
                 .Include(t => t.Client)
                 .Include(t => t.Service)
-                .Where(t => t.State == attendedState)
+                .Where(t => t.State == inServiceState)
                 .OrderByDescending(t => t.FechaHora)
-                .ThenByDescending(t => t.Number)
                 .Take(count)
                 .ToListAsync();
 
