@@ -1,205 +1,439 @@
-/* Kairos - Sistema de Gestión de Turnos */
-/* Tema cambiado de morado a amarillo profesional */
+/* Kairos - Sistema de Gestión de Turnos - Diseño Modernizado */
+/* Inspirado en diseños premium como Luntra */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 
 :root {
-  --kairos-primary: #f59e0b;
-  --kairos-primary-dark: #d97706;
-  --kairos-primary-light: #fbbf24;
-  --kairos-secondary: #fcd34d;
-  --kairos-accent: #fde68a;
-  --kairos-success: #10b981;
-  --kairos-warning: #ef4444;
-  --kairos-danger: #dc2626;
-  --kairos-dark: #1f2937;
-  --kairos-light: #f8f9fa;
+  /* Colores primarios - Naranja mejorado con gradientes */
+  --kairos-primary: #f97316;
+  --kairos-primary-dark: #ea580c;
+  --kairos-primary-light: #fb923c;
+  --kairos-primary-lighter: #fdba74;
+  --kairos-secondary: #fbbf24;
+  --kairos-accent: #fde047;
+
+  /* Sistema de colores neutros moderno */
   --kairos-white: #ffffff;
-  --kairos-gray: #6b7280;
-  --kairos-gray-light: #e5e7eb;
+  --kairos-gray-50: #f9fafb;
+  --kairos-gray-100: #f3f4f6;
+  --kairos-gray-200: #e5e7eb;
+  --kairos-gray-300: #d1d5db;
+  --kairos-gray-400: #9ca3af;
+  --kairos-gray-500: #6b7280;
+  --kairos-gray-600: #4b5563;
+  --kairos-gray-700: #374151;
+  --kairos-gray-800: #1f2937;
+  --kairos-gray-900: #111827;
+
+  /* Colores de estado */
+  --kairos-success: #10b981;
+  --kairos-success-light: #d1fae5;
+  --kairos-warning: #f59e0b;
+  --kairos-warning-light: #fef3c7;
+  --kairos-danger: #ef4444;
+  --kairos-danger-light: #fee2e2;
+  --kairos-info: #3b82f6;
+  --kairos-info-light: #dbeafe;
+
+  /* Sombras modernas (más suaves y realistas) */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Sombras de color (para efectos hover) */
+  --shadow-primary: 0 10px 25px -5px rgba(249, 115, 22, 0.3);
+  --shadow-primary-lg: 0 20px 40px -10px rgba(249, 115, 22, 0.4);
+
+  /* Bordes */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Transiciones */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background-color: var(--kairos-light);
-  color: var(--kairos-dark);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background-color: var(--kairos-gray-50);
+  color: var(--kairos-gray-900);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Estilos personalizados de Bootstrap */
-.btn-primary {
-  background-color: var(--kairos-primary) !important;
-  border-color: var(--kairos-primary) !important;
+/* ========================================
+   BOTONES MODERNIZADOS
+   ======================================== */
+
+.btn {
   font-weight: 600;
+  border-radius: var(--radius-lg);
   padding: 0.75rem 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: var(--kairos-primary-dark) !important;
-  border-color: var(--kairos-primary-dark) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.btn-outline-primary {
-  color: var(--kairos-primary) !important;
-  border-color: var(--kairos-primary) !important;
-  font-weight: 600;
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--kairos-primary) !important;
-  border-color: var(--kairos-primary) !important;
-  color: white !important;
-}
-
-.bg-primary {
-  background-color: var(--kairos-primary) !important;
-}
-
-.bg-gradient-primary {
-  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%) !important;
-  /* Remove overflow on gradient backgrounds for client views */
+  transition: all var(--transition-base);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
   overflow: hidden;
 }
 
-.text-primary {
-  color: var(--kairos-primary) !important;
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
 }
 
-/* Navbar personalizada */
-.navbar-kairos {
-  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, var(--kairos-primary) 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
-/* Cards elegantes */
+.btn-primary {
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, #c2410c 100%);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-primary {
+  background: white;
+  color: var(--kairos-primary);
+  border: 2px solid var(--kairos-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-primary:hover {
+  background: var(--kairos-primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-light {
+  background: white;
+  color: var(--kairos-gray-700);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-light:hover {
+  background: var(--kairos-gray-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  border-radius: var(--radius-xl);
+}
+
+/* ========================================
+   BACKGROUNDS Y GRADIENTES
+   ======================================== */
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%);
+  position: relative;
+}
+
+.bg-gradient-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(251, 146, 60, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(234, 88, 12, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ========================================
+   CARDS MODERNIZADAS
+   ======================================== */
+
 .card {
+  background: white;
   border: none;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
+  overflow: hidden;
 }
 
 .card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-2xl);
+  transform: translateY(-4px);
+}
+
+.card-body {
+  padding: 2rem;
 }
 
 .card-header {
-  background-color: transparent;
-  border-bottom: 2px solid var(--kairos-gray-light);
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  color: white;
+  border: none;
+  padding: 1.5rem 2rem;
   font-weight: 700;
-  padding: 1.5rem;
-}
-
-.card-header.bg-primary {
-  background-color: var(--kairos-primary) !important;
-  border-bottom: none;
-  border-radius: 16px 16px 0 0;
-}
-
-/* Interfaz táctil - Botones grandes */
-.btn-touch {
-  min-height: 80px;
   font-size: 1.25rem;
-  font-weight: 600;
-  border-radius: 16px;
-  border: 3px solid transparent;
-  transition: all 0.2s ease;
+  letter-spacing: -0.025em;
+}
+
+/* ========================================
+   BOTONES TÁCTILES (KIOSKO)
+   ======================================== */
+
+.btn-touch {
+  min-height: 100px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: var(--radius-xl);
+  background: white;
+  border: 3px solid var(--kairos-gray-200);
+  color: var(--kairos-gray-900);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-touch::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.btn-touch > * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-touch:hover {
+  border-color: var(--kairos-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-primary);
+}
+
+.btn-touch:hover::after {
+  opacity: 1;
+}
+
+.btn-touch:hover {
+  color: white;
 }
 
 .btn-touch:active {
-  transform: scale(0.96);
+  transform: translateY(-2px) scale(0.98);
 }
 
-.btn-touch-primary {
-  background-color: var(--kairos-white);
-  border-color: var(--kairos-primary);
-  color: var(--kairos-primary);
-}
+/* ========================================
+   TECLADO NUMÉRICO
+   ======================================== */
 
-.btn-touch-primary:hover {
-  background-color: var(--kairos-primary);
-  color: var(--kairos-white);
-}
-
-/* Teclado numérico */
 .numpad-btn {
-  min-height: 70px;
+  min-height: 75px;
   font-size: 1.75rem;
   font-weight: 700;
-  border-radius: 12px;
-  background-color: var(--kairos-white);
-  border: 2px solid var(--kairos-gray-light);
-  color: var(--kairos-dark);
-  transition: all 0.15s ease;
+  border-radius: var(--radius-lg);
+  background: white;
+  border: 2px solid var(--kairos-gray-200);
+  color: var(--kairos-gray-900);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
 }
 
 .numpad-btn:hover {
-  background-color: var(--kairos-primary);
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%);
   border-color: var(--kairos-primary);
-  color: var(--kairos-white);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .numpad-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
+  box-shadow: var(--shadow-xs);
+}
+
+.numpad-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 .numpad-display {
-  font-size: 2rem;
-  font-weight: 700;
-  min-height: 70px;
-  background-color: var(--kairos-white);
+  font-size: 2.5rem;
+  font-weight: 800;
+  min-height: 80px;
+  background: linear-gradient(135deg, var(--kairos-gray-50) 0%, white 100%);
   border: 3px solid var(--kairos-primary);
-  border-radius: 12px;
-  color: var(--kairos-dark);
+  border-radius: var(--radius-xl);
+  color: var(--kairos-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  letter-spacing: 0.05em;
 }
 
-/* Confirmación de turno */
+/* ========================================
+   CONFIRMACIÓN DE TURNO
+   ======================================== */
+
 .turn-code {
-  font-size: 5rem;
+  font-size: 6rem;
   font-weight: 900;
-  color: var(--kairos-primary);
-  letter-spacing: 0.5rem;
-  text-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.1em;
+  text-shadow: 0 4px 20px rgba(249, 115, 22, 0.2);
+  line-height: 1;
 }
 
 .turn-info {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--kairos-dark);
+  color: var(--kairos-gray-700);
 }
 
-/* Display público */
+/* ========================================
+   DISPLAY PÚBLICO
+   ======================================== */
+
 .display-container {
-  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, var(--kairos-primary) 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%);
   min-height: 100vh;
-  /* Removed overflow to hide scrollbar */
   overflow: hidden;
+  position: relative;
+}
+
+.display-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(251, 146, 60, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(234, 88, 12, 0.4) 0%, transparent 50%);
+  animation: pulse-bg 8s ease-in-out infinite;
+}
+
+@keyframes pulse-bg {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .display-turn-card {
-  background-color: var(--kairos-white);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all var(--transition-slow);
+}
+
+.display-turn-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3);
 }
 
 .display-turn-number {
-  font-size: 4rem;
+  font-size: 5rem;
   font-weight: 900;
-  color: var(--kairos-primary);
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .display-service-name {
   font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--kairos-dark);
+  font-weight: 700;
+  color: var(--kairos-gray-800);
+  margin-top: 1rem;
 }
 
-/* Animaciones */
+.display-turn-number-sm {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.display-service-name-sm {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--kairos-gray-700);
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -208,57 +442,211 @@ body {
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes pulse {
   0%,
   100% {
     transform: scale(1);
+    opacity: 1;
   }
   50% {
     transform: scale(1.05);
+    opacity: 0.9;
   }
 }
 
 .pulse {
-  animation: pulse 2s infinite;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Logo */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ========================================
+   LOGO Y BRANDING
+   ======================================== */
+
 .kairos-logo {
   font-size: 2rem;
   font-weight: 900;
-  color: var(--kairos-white);
-  letter-spacing: 0.1rem;
+  color: white;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .kairos-logo-small {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 900;
-  color: var(--kairos-primary);
-  letter-spacing: 0.05rem;
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
 }
 
-/* Iconos de servicio */
+/* ========================================
+   ICONOS
+   ======================================== */
+
 .service-icon {
-  font-size: 3rem;
-  color: var(--kairos-primary);
-  margin-bottom: 1rem;
+  font-size: 3.5rem;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }
 
-/* Alertas personalizadas */
-.alert-kairos {
+/* ========================================
+   ALERTAS
+   ======================================== */
+
+.alert {
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-weight: 600;
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow-sm);
 }
 
-/* Responsive */
+.alert-kairos {
+  background: linear-gradient(135deg, var(--kairos-primary-light) 0%, var(--kairos-primary-lighter) 100%);
+  color: var(--kairos-gray-900);
+  border-left: 4px solid var(--kairos-primary);
+}
+
+.alert-danger {
+  background: var(--kairos-danger-light);
+  color: var(--kairos-danger);
+  border-left: 4px solid var(--kairos-danger);
+}
+
+.alert-success {
+  background: var(--kairos-success-light);
+  color: var(--kairos-success);
+  border-left: 4px solid var(--kairos-success);
+}
+
+.alert-info {
+  background: var(--kairos-info-light);
+  color: var(--kairos-info);
+  border-left: 4px solid var(--kairos-info);
+}
+
+/* ========================================
+   NAVBAR
+   ======================================== */
+
+.navbar-kairos {
+  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, var(--kairos-primary) 100%);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+
+.form-control,
+.form-select {
+  border-radius: var(--radius-md);
+  border: 2px solid var(--kairos-gray-200);
+  padding: 0.75rem 1rem;
+  transition: all var(--transition-base);
+  font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--kairos-primary);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+.form-control-lg {
+  padding: 1rem 1.25rem;
+  font-size: 1.125rem;
+  border-radius: var(--radius-lg);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--kairos-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+/* ========================================
+   DROPDOWN
+   ======================================== */
+
+.dropdown-menu {
+  border-radius: var(--radius-lg);
+  border: none;
+  box-shadow: var(--shadow-xl);
+  padding: 0.5rem;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  font-weight: 500;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, var(--kairos-primary-light) 0%, var(--kairos-primary-lighter) 100%);
+  color: var(--kairos-gray-900);
+  transform: translateX(4px);
+}
+
+/* ========================================
+   SPINNER / LOADING
+   ======================================== */
+
+.spinner-border {
+  border-width: 3px;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+footer {
+  background: var(--kairos-gray-900);
+  color: var(--kairos-gray-400);
+  border-top: 1px solid var(--kairos-gray-800);
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 768px) {
   .turn-code {
-    font-size: 3.5rem;
-    letter-spacing: 0.3rem;
+    font-size: 4rem;
+    letter-spacing: 0.05em;
   }
 
   .turn-info {
@@ -266,26 +654,37 @@ body {
   }
 
   .display-turn-number {
-    font-size: 3rem;
+    font-size: 3.5rem;
   }
 
   .btn-touch {
-    min-height: 60px;
+    min-height: 80px;
     font-size: 1rem;
   }
 
   .numpad-btn {
-    min-height: 60px;
+    min-height: 65px;
     font-size: 1.5rem;
   }
 
   .numpad-display {
+    font-size: 2rem;
+    min-height: 70px;
+  }
+
+  .kairos-logo {
     font-size: 1.5rem;
-    min-height: 60px;
+  }
+
+  .kairos-logo-small {
+    font-size: 1.5rem;
   }
 }
 
-/* Print styles para confirmación de turno */
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
 @media print {
   body {
     background: white;
@@ -303,43 +702,24 @@ body {
   }
 }
 
-/* Mejoras de accesibilidad */
-.btn:focus,
-.form-control:focus,
-.form-select:focus {
+/* ========================================
+   ACCESIBILIDAD
+   ======================================== */
+
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
   outline: 3px solid var(--kairos-primary);
   outline-offset: 2px;
 }
 
-/* Container sin padding para vistas de pantalla completa */
-.display-container .container-fluid {
-  padding: 0;
+/* Reducir animaciones para usuarios con preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
-
-/* Estilos para dropdown del navbar */
-.dropdown-menu {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.dropdown-item {
-  padding: 0.75rem 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-  background-color: var(--kairos-accent);
-  color: var(--kairos-primary);
-}
-
-/* Hide scrollbars for client-facing views */
-.client-view-container {
-  overflow: hidden;
-}
-
-.min-vh-100 {
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-

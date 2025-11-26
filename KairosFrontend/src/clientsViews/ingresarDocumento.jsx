@@ -68,29 +68,59 @@ export default function IngresarDocumento() {
   }
 
   return (
-    <div className="min-vh-100 bg-gradient-primary d-flex align-items-center py-5" style={{ overflow: "hidden" }}>
-      <div className="container">
+    <div className="min-vh-100 bg-gradient-primary d-flex align-items-center py-5" style={{ position: "relative" }}>
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <div className="text-center mb-4">
-          <button className="btn btn-light btn-lg" onClick={() => navigate("/")}>
-            <i className="bi bi-arrow-left me-2"></i>
-            Volver
+          <button className="btn btn-light btn-lg" onClick={() => navigate("/")} disabled={loading}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span className="ms-2">Volver</span>
           </button>
         </div>
 
-        <div className="card shadow-lg border-0 fade-in">
+        <div className="card shadow-lg border-0 fade-in" style={{ maxWidth: "600px", margin: "0 auto" }}>
           <div className="card-body p-5">
-            <h2 className="text-center mb-4 kairos-logo-small">Digite su número de documento</h2>
+            <div className="text-center mb-4">
+              <div
+                className="d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%)",
+                  boxShadow: "var(--shadow-primary)",
+                }}
+              >
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <h2 className="kairos-logo-small mb-2">Digite su número de documento</h2>
+              <p className="text-muted mb-0">Ingrese su documento para continuar</p>
+            </div>
 
             <div className="mb-4">
-              <div className="numpad-display d-flex align-items-center justify-content-center">
-                {documento || "0"}
-              </div>
+              <div className="numpad-display">{documento || "0"}</div>
             </div>
 
             {error && (
-              <div className="alert alert-danger alert-kairos mb-4" role="alert">
-                <i className="bi bi-exclamation-triangle me-2"></i>
-                {error}
+              <div
+                className="alert alert-danger mb-4"
+                role="alert"
+                style={{
+                  animation: "fadeIn 0.3s ease-out",
+                }}
+              >
+                <div className="d-flex align-items-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
               </div>
             )}
 
@@ -108,7 +138,12 @@ export default function IngresarDocumento() {
               ))}
 
               <div className="col-4">
-                <button className="numpad-btn w-100 text-danger" onClick={handleClear} disabled={loading}>
+                <button
+                  className="numpad-btn w-100"
+                  onClick={handleClear}
+                  disabled={loading}
+                  style={{ color: "var(--kairos-danger)", fontWeight: 700, fontSize: "1.25rem" }}
+                >
                   Borrar
                 </button>
               </div>
@@ -120,13 +155,27 @@ export default function IngresarDocumento() {
               </div>
 
               <div className="col-4">
-                <button className="numpad-btn w-100 text-warning" onClick={handleDelete} disabled={loading}>
-                  <i className="bi bi-backspace"></i>
+                <button
+                  className="numpad-btn w-100"
+                  onClick={handleDelete}
+                  disabled={loading}
+                  style={{ fontSize: "1.5rem" }}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                    <line x1="18" y1="9" x2="12" y2="15" />
+                    <line x1="12" y1="9" x2="18" y2="15" />
+                  </svg>
                 </button>
               </div>
             </div>
 
-            <button className="btn btn-primary btn-lg w-100" onClick={handleSubmit} disabled={loading || !documento}>
+            <button
+              className="btn btn-primary btn-lg w-100"
+              onClick={handleSubmit}
+              disabled={loading || !documento}
+              style={{ fontSize: "1.25rem", padding: "1rem" }}
+            >
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2"></span>
@@ -134,8 +183,10 @@ export default function IngresarDocumento() {
                 </>
               ) : (
                 <>
-                  <i className="bi bi-check-circle me-2"></i>
-                  OK
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span className="ms-2">Continuar</span>
                 </>
               )}
             </button>
