@@ -7,7 +7,6 @@ namespace KairosPWA.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrador")]
     public class ClientsController : ControllerBase
     {
         private readonly ClientService _clientService;
@@ -19,6 +18,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Clients
         [HttpGet]
+        [Authorize(Roles = "Administrador,Empleado")]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
         {
             var clients = await _clientService.GetAllClientsAsync();
@@ -27,6 +27,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Clients/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "Administrador,Empleado")]
         public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
             var client = await _clientService.GetClientByIdAsync(id);
@@ -37,8 +38,22 @@ namespace KairosPWA.Controllers
             return Ok(client);
         }
 
+        // GET: api/Clients/by-id/{id}
+        [HttpGet("by-id/{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ClientDTO>> GetClientByDocument(string id)
+        {
+            var client = await _clientService.GetClientByDocumentAsync(id);
+
+            if (client == null)
+                return NotFound();
+
+            return Ok(client);
+        }
+
         // PUT: api/Clients/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> PutClient(int id, [FromBody] ClientDTO clientDto)
         {
             if (id != clientDto.IdClient)
@@ -54,6 +69,7 @@ namespace KairosPWA.Controllers
 
         // POST: api/Clients
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<ClientDTO>> PostClient([FromBody] ClientDTO clientDto)
         {
             var createdClient = await _clientService.CreateClientAsync(clientDto);
@@ -65,6 +81,7 @@ namespace KairosPWA.Controllers
 
         // DELETE: api/Clients/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DeleteClient(int id)
         {
             var deleted = await _clientService.DeleteClientAsync(id);

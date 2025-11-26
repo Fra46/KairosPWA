@@ -7,6 +7,24 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const stored = localStorage.getItem('kairos_auth');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.token) {
+          config.headers.Authorization = `Bearer ${parsed.token}`;
+        }
+      }
+    } catch {
+      // ignoramos errores de parseo
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {

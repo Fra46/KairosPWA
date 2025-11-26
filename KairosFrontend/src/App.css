@@ -1,3 +1,345 @@
-.navbar {
-  background-color: #142544;
+/* Kairos - Sistema de Gestión de Turnos */
+/* Tema cambiado de morado a amarillo profesional */
+
+:root {
+  --kairos-primary: #f59e0b;
+  --kairos-primary-dark: #d97706;
+  --kairos-primary-light: #fbbf24;
+  --kairos-secondary: #fcd34d;
+  --kairos-accent: #fde68a;
+  --kairos-success: #10b981;
+  --kairos-warning: #ef4444;
+  --kairos-danger: #dc2626;
+  --kairos-dark: #1f2937;
+  --kairos-light: #f8f9fa;
+  --kairos-white: #ffffff;
+  --kairos-gray: #6b7280;
+  --kairos-gray-light: #e5e7eb;
 }
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: var(--kairos-light);
+  color: var(--kairos-dark);
+}
+
+/* Estilos personalizados de Bootstrap */
+.btn-primary {
+  background-color: var(--kairos-primary) !important;
+  border-color: var(--kairos-primary) !important;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--kairos-primary-dark) !important;
+  border-color: var(--kairos-primary-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-outline-primary {
+  color: var(--kairos-primary) !important;
+  border-color: var(--kairos-primary) !important;
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--kairos-primary) !important;
+  border-color: var(--kairos-primary) !important;
+  color: white !important;
+}
+
+.bg-primary {
+  background-color: var(--kairos-primary) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%) !important;
+  /* Remove overflow on gradient backgrounds for client views */
+  overflow: hidden;
+}
+
+.text-primary {
+  color: var(--kairos-primary) !important;
+}
+
+/* Navbar personalizada */
+.navbar-kairos {
+  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, var(--kairos-primary) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards elegantes */
+.card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 2px solid var(--kairos-gray-light);
+  font-weight: 700;
+  padding: 1.5rem;
+}
+
+.card-header.bg-primary {
+  background-color: var(--kairos-primary) !important;
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+}
+
+/* Interfaz táctil - Botones grandes */
+.btn-touch {
+  min-height: 80px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 16px;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-touch:active {
+  transform: scale(0.96);
+}
+
+.btn-touch-primary {
+  background-color: var(--kairos-white);
+  border-color: var(--kairos-primary);
+  color: var(--kairos-primary);
+}
+
+.btn-touch-primary:hover {
+  background-color: var(--kairos-primary);
+  color: var(--kairos-white);
+}
+
+/* Teclado numérico */
+.numpad-btn {
+  min-height: 70px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background-color: var(--kairos-white);
+  border: 2px solid var(--kairos-gray-light);
+  color: var(--kairos-dark);
+  transition: all 0.15s ease;
+}
+
+.numpad-btn:hover {
+  background-color: var(--kairos-primary);
+  border-color: var(--kairos-primary);
+  color: var(--kairos-white);
+}
+
+.numpad-btn:active {
+  transform: scale(0.95);
+}
+
+.numpad-display {
+  font-size: 2rem;
+  font-weight: 700;
+  min-height: 70px;
+  background-color: var(--kairos-white);
+  border: 3px solid var(--kairos-primary);
+  border-radius: 12px;
+  color: var(--kairos-dark);
+}
+
+/* Confirmación de turno */
+.turn-code {
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--kairos-primary);
+  letter-spacing: 0.5rem;
+  text-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+}
+
+.turn-info {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--kairos-dark);
+}
+
+/* Display público */
+.display-container {
+  background: linear-gradient(135deg, var(--kairos-primary-dark) 0%, var(--kairos-primary) 100%);
+  min-height: 100vh;
+  /* Removed overflow to hide scrollbar */
+  overflow: hidden;
+}
+
+.display-turn-card {
+  background-color: var(--kairos-white);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.display-turn-number {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--kairos-primary);
+}
+
+.display-service-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--kairos-dark);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Logo */
+.kairos-logo {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--kairos-white);
+  letter-spacing: 0.1rem;
+}
+
+.kairos-logo-small {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--kairos-primary);
+  letter-spacing: 0.05rem;
+}
+
+/* Iconos de servicio */
+.service-icon {
+  font-size: 3rem;
+  color: var(--kairos-primary);
+  margin-bottom: 1rem;
+}
+
+/* Alertas personalizadas */
+.alert-kairos {
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .turn-code {
+    font-size: 3.5rem;
+    letter-spacing: 0.3rem;
+  }
+
+  .turn-info {
+    font-size: 1.25rem;
+  }
+
+  .display-turn-number {
+    font-size: 3rem;
+  }
+
+  .btn-touch {
+    min-height: 60px;
+    font-size: 1rem;
+  }
+
+  .numpad-btn {
+    min-height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .numpad-display {
+    font-size: 1.5rem;
+    min-height: 60px;
+  }
+}
+
+/* Print styles para confirmación de turno */
+@media print {
+  body {
+    background: white;
+  }
+
+  .navbar,
+  footer,
+  .btn {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 2px solid var(--kairos-primary);
+  }
+}
+
+/* Mejoras de accesibilidad */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+  outline: 3px solid var(--kairos-primary);
+  outline-offset: 2px;
+}
+
+/* Container sin padding para vistas de pantalla completa */
+.display-container .container-fluid {
+  padding: 0;
+}
+
+/* Estilos para dropdown del navbar */
+.dropdown-menu {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: var(--kairos-accent);
+  color: var(--kairos-primary);
+}
+
+/* Hide scrollbars for client-facing views */
+.client-view-container {
+  overflow: hidden;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+

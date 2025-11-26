@@ -41,11 +41,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Nuvia API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Kairos API", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Autenticación JWT usando Bearer. Ejemplo: 'Bearer {token}'",
+        Description = "Autenticaciï¿½n JWT usando Bearer. Ejemplo: 'Bearer {token}'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -72,7 +72,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://192.168.229.201:3000")
+        policy.WithOrigins("http://localhost:3000", "http://192.168.0.5:3000")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

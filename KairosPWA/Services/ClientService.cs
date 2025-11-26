@@ -41,6 +41,24 @@ namespace KairosPWA.Services
             };
         }
 
+        public async Task<ClientDTO?> GetClientByDocumentAsync(string id)
+        {
+            var client = await _context.Clients
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (client == null)
+                return null;
+
+            return new ClientDTO
+            {
+                IdClient = client.IdClient,
+                Id = client.Id,
+                Name = client.Name,
+                State = client.State
+            };
+        }
+
         public async Task<ClientDTO> CreateClientAsync(ClientDTO clientDto)
         {
             if (string.IsNullOrWhiteSpace(clientDto.State))

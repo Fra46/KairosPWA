@@ -11,6 +11,11 @@ export const clientService = {
         return response.data;
     },
 
+    GetByIdAlternative: async (id) => {
+        const response = await api.get(`/clients/by-id/${id}`);
+        return response.data;
+    },
+
     Create: async (clientData) => {
         const response = await api.post('/clients', clientData);
         return response.data;

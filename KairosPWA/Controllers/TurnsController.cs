@@ -93,18 +93,17 @@ namespace KairosPWA.Controllers
         // POST api/turns/service/{serviceId}/advance
         [HttpPost("service/{serviceId}/advance")]
         [Authorize(Roles = "Administrador,Empleado")]
-        public async Task<IActionResult> AdvanceTurnByService(int serviceId)
+        public async Task<IActionResult> AdvanceTurnByService(int serviceId, [FromBody] AdvanceTurnRequestDTO? request)
         {
             int? userId = null;
 
-            // 1) Intentar directamente con NameIdentifier
+            // 1) Intentar claims como ya lo tienes
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
             {
                 userId = parsedId;
             }
 
-            // 2) Si falla, buscar por username desde los claims (sub / name)
             if (userId == null)
             {
                 var userName =
@@ -121,6 +120,12 @@ namespace KairosPWA.Controllers
                 }
             }
 
+            // 2) Fallback: si sigue sin poder, usar el UserId que venga en el body
+            if (userId == null && request != null && request.UserId > 0)
+            {
+                userId = request.UserId;
+            }
+
             if (userId == null)
             {
                 return Unauthorized(new { message = "No se pudo determinar el usuario actual." });
@@ -133,6 +138,7 @@ namespace KairosPWA.Controllers
 
             return Ok(nextTurn);
         }
+
 
         // GET api/turns/public/status?document=123&serviceId=1
         [HttpGet("public/status")]

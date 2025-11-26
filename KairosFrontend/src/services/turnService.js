@@ -24,5 +24,48 @@ export const turnService = {
     Delete: async (id) => {
         const response = await api.delete(`/turns/${id}`);
         return response.data;
+    },
+
+    // Cliente solicita turno público
+    CreatePublic: async (data) => {
+        const response = await api.post('/turns/public', data);
+        return response.data;
+    },
+
+    // Cliente cancela turno público
+    CancelPublic: async (data) => {
+        const response = await api.post('/turns/public/cancel', data);
+        return response.data;
+    },
+
+    // Resumen para las cards de servicios
+    GetServiceSummary: async (serviceId) => {
+        const response = await api.get(`/turns/service/${serviceId}/summary`);
+        return response.data;
+    },
+
+    // EMPLEADO/ADMIN: avanzar turno por servicio
+    AdvanceByService: async (serviceId, userId) => {
+        const response = await api.post(`/turns/service/${serviceId}/advance`, {
+            userId,
+        });
+        return response.data;
+    },
+
+
+    // Estado del turno de un cliente para un servicio
+    GetPublicStatus: async (document, serviceId) => {
+        const response = await api.get('/turns/public/status', {
+            params: { document, serviceId },
+        });
+        return response.data;
+    },
+
+    // Últimos turnos llamados para la Pantalla
+    GetRecentCalled: async (count = 20) => {
+        const response = await api.get('/turns/display/recent', {
+            params: { count },
+        });
+        return response.data;
     }
 }
