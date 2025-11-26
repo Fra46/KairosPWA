@@ -68,22 +68,10 @@ export default function RegistroCliente() {
   }
 
   return (
-    <div className="min-vh-100 bg-gradient-primary d-flex align-items-center py-5" style={{ position: "relative" }}>
+    <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
-        <div className="text-center mb-4">
-          <button
-            className="btn btn-light btn-lg"
-            onClick={() => navigate("/ingresar-documento", { state: { docType } })}
-            disabled={loading}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            <span className="ms-2">Volver</span>
-          </button>
-        </div>
 
-        <div className="card shadow-lg border-0 fade-in" style={{ maxWidth: "650px", margin: "0 auto" }}>
+        <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "650px", margin: "0 auto" }}>
           <div className="card-body p-5">
             <div className="text-center mb-5">
               <div
@@ -107,8 +95,9 @@ export default function RegistroCliente() {
               <div
                 className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill mt-2"
                 style={{
-                  background: "linear-gradient(135deg, var(--kairos-gray-100) 0%, var(--kairos-gray-50) 100%)",
-                  border: "2px solid var(--kairos-gray-200)",
+                  background:
+                    "linear-gradient(135deg, var(--kairos-primary-light) 0%, var(--kairos-primary-lighter) 100%)",
+                  border: "2px solid var(--kairos-primary)",
                 }}
               >
                 <svg
@@ -116,14 +105,14 @@ export default function RegistroCliente() {
                   height="18"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="var(--kairos-gray-600)"
+                  stroke="var(--kairos-gray-800)"
                   strokeWidth="2"
                 >
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M7 15h0M7 12h0M7 9h4" />
                 </svg>
-                <span style={{ color: "var(--kairos-gray-700)", fontWeight: 600, fontSize: "0.95rem" }}>
-                  Documento: <strong>{documento}</strong>
+                <span style={{ color: "var(--kairos-gray-900)", fontWeight: 700, fontSize: "0.95rem" }}>
+                  Documento: <strong style={{ fontWeight: 800 }}>{documento}</strong>
                 </span>
               </div>
             </div>
@@ -162,26 +151,39 @@ export default function RegistroCliente() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary btn-lg w-100 mt-2"
-                disabled={loading}
-                style={{ fontSize: "1.25rem", padding: "1rem" }}
-              >
-                {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    Registrando...
-                  </>
-                ) : (
-                  <>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="20 6 9 17 4 12" />
+              <div className="row g-3">
+                <div className="col-6 d-flex align-items-stretch">
+                  <button className="btn btn-light btn-lg w-100 h-100 rounded-4 d-flex align-items-center justify-content-center" onClick={() => navigate("/")} disabled={loading}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
-                    <span className="ms-2">Registrar y solicitar turno</span>
-                  </>
-                )}
-              </button>
+                    <span className="ms-2">Volver</span>
+                  </button>
+                </div>
+
+                <div className="col-6 d-flex align-items-stretch">
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-lg w-100 h-100 rounded-4 d-flex align-items-center justify-content-center"
+                    disabled={loading}
+                    style={{ fontSize: "1.25rem", padding: "1rem" }}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        Registrando...
+                      </>
+                    ) : (
+                      <>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="ms-2">Registrar y solicitar turno</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>

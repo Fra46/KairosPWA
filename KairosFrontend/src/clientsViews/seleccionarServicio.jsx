@@ -116,7 +116,7 @@ export default function SeleccionarServicio() {
   if (loading) {
     return (
       <div
-        className="min-vh-100 bg-gradient-primary d-flex align-items-center justify-content-center"
+        className="min-vh-100 d-flex align-items-center justify-content-center"
         style={{ position: "relative" }}
       >
         <div className="text-center text-white" style={{ position: "relative", zIndex: 1 }}>
@@ -134,7 +134,7 @@ export default function SeleccionarServicio() {
   }
 
   return (
-    <div className="min-vh-100 bg-gradient-primary d-flex align-items-center py-5" style={{ position: "relative" }}>
+    <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <div className="text-center mb-4">
           <button className="btn btn-light btn-lg" onClick={() => navigate("/")} disabled={requesting}>
@@ -145,10 +145,28 @@ export default function SeleccionarServicio() {
           </button>
         </div>
 
-        <div className="card shadow-lg border-0 fade-in" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+        <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "900px", margin: "0 auto" }}>
           <div className="card-body p-5">
             <div className="text-center mb-4">
-              <h2 className="kairos-logo-small mb-3">Por favor, elija el servicio</h2>
+              <div
+                className="d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%)",
+                  boxShadow: "var(--shadow-primary)",
+                }}
+              >
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M9 12l2 2 4-4" />
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              </div>
+              <h2 className="kairos-logo-small mb-2">Por favor, elija el servicio</h2>
+            </div>
+
+            <div className="text-center mb-4">
               <div
                 className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill"
                 style={{
@@ -202,24 +220,26 @@ export default function SeleccionarServicio() {
                 <p className="text-muted fs-5 fw-semibold">No hay servicios disponibles en este momento</p>
               </div>
             ) : (
-              <div className="row g-4">
+              <div className="row g-3 mb-4">
                 {services.map((service, index) => (
                   <div
                     key={service.idService}
-                    className="col-md-6 col-lg-4"
+                    className="col-6 col-md-4"
                     style={{
                       animation: `fadeIn 0.5s ease-out ${0.1 + index * 0.05}s forwards`,
                       opacity: 0,
                     }}
                   >
                     <button
-                      className="btn btn-touch w-100 d-flex flex-column align-items-center justify-content-center gap-3 p-4"
+                      className="numpad-btn w-100 d-flex flex-column align-items-center justify-content-center gap-2 py-4"
                       onClick={() => handleSelectService(service.idService, service.name)}
                       disabled={requesting}
-                      style={{ minHeight: "160px" }}
+                      style={{ minHeight: "140px", fontSize: "0.9rem" }}
                     >
-                      <div style={{ color: "var(--kairos-primary)" }}>{getServiceIcon(service.name)}</div>
-                      <span className="text-center fw-bold" style={{ fontSize: "1.05rem", lineHeight: 1.3 }}>
+                      <div className="doc-icon" style={{ color: "var(--kairos-primary)", display: "flex" }}>
+                        {getServiceIcon(service.name)}
+                      </div>
+                      <span className="text-center" style={{ lineHeight: 1.3, fontWeight: 600 }}>
                         {service.name}
                       </span>
                     </button>
@@ -227,6 +247,39 @@ export default function SeleccionarServicio() {
                 ))}
               </div>
             )}
+
+            <div className="text-center mt-4">
+              <div
+                className="d-inline-flex align-items-center gap-2 px-4 py-3 rounded-pill"
+                style={{
+                  background: "linear-gradient(135deg, rgba(249, 115, 22, 0.08) 0%, rgba(251, 146, 60, 0.08) 100%)",
+                  border: "2px solid rgba(249, 115, 22, 0.15)",
+                }}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--kairos-primary)"
+                  strokeWidth="2"
+                  style={{ flexShrink: 0 }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4M12 8h.01" />
+                </svg>
+                <p
+                  className="mb-0"
+                  style={{
+                    color: "var(--kairos-gray-700)",
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  Toque un servicio para continuar
+                </p>
+              </div>
+            </div>
 
             {requesting && (
               <div

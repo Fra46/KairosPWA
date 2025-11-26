@@ -38,12 +38,60 @@ export default function EmpleadoNextTurn() {
       const connection = await startConnection()
       connection.on("TurnUpdated", () => {
         console.log("SignalR: TurnUpdated recibido")
-        // No recargamos nada aquí. Solo aviso visual si quieres.
+        // Aquí podrías agregar algún refresco si luego lo necesitas
       })
     } catch (err) {
       console.error("Error en SignalR:", err)
     }
   }
+
+  // Cargar último servicio seleccionado desde localStorage
+  useEffect(() => {
+    if (!services.length) return;
+
+    const lastServiceId = localStorage.getItem("kairos_last_service");
+    if (lastServiceId) {
+      const svc = services.find(
+        (s) => s.idService === Number.parseInt(lastServiceId)
+      );
+      if (svc) {
+        setSelectedService(svc);
+      }
+    }
+  }, [services]);
+
+  // Cargar turno actual en atención para el empleado y servicio seleccionados
+  useEffect(() => {
+    const fetchCurrentTurn = async () => {
+      if (!selectedService || !user?.id) return;
+
+      try {
+        setLoading(true);
+        setError("");
+        const response = await turnService.GetCurrent(
+          selectedService.idService,
+          user.id
+        );
+        setCurrentTurn(response);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          // No hay turno en atención para este servicio y usuario
+          setCurrentTurn(null);
+          setInfo(err.response?.data?.message || "");
+        } else {
+          console.error(err);
+          setError(
+            err.response?.data?.message ||
+            "Error al cargar el turno actual."
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCurrentTurn();
+  }, [selectedService, user]);
 
   const handleAdvance = async () => {
     if (!selectedService) {
@@ -80,7 +128,6 @@ export default function EmpleadoNextTurn() {
       setLoading(false);
     }
   };
-
 
   const handleComplete = async () => {
     if (!selectedService) {
@@ -129,8 +176,8 @@ export default function EmpleadoNextTurn() {
           {/* Panel de control */}
           <div className="col-lg-5">
             <div className="card shadow-xl border-0 fade-in">
-              <div className="card-header bg-gradient-orange text-white py-4">
-                <h2 className="mb-0 h3 fw-bold d-flex align-items-center">
+              <div className="card-header bg-gradient-orange text-white py-3 d-flex align-items-center">
+                <div className="icon-circle bg-white bg-opacity-10 me-3">
                   <svg
                     width="28"
                     height="28"
@@ -138,10 +185,12 @@ export default function EmpleadoNextTurn() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    className="me-3"
                   >
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
+                </div>
+                <h2 className="h5 mb-0 fw-bold">
+                  <span className="d-inline-block border-start border-3 border-warning me-2"></span>
                   Llamar Siguiente Turno
                 </h2>
               </div>
@@ -154,8 +203,26 @@ export default function EmpleadoNextTurn() {
                     className="form-select form-select-lg"
                     value={selectedService?.idService || ""}
                     onChange={(e) => {
-                      const svc = services.find((s) => s.idService === Number.parseInt(e.target.value))
-                      setSelectedService(svc)
+                      const value = e.target.value;
+
+                      if (!value) {
+                        setSelectedService(null);
+                        localStorage.removeItem("kairos_last_service");
+                        return;
+                      }
+
+                      const svc = services.find(
+                        (s) => s.idService === Number.parseInt(value)
+                      );
+
+                      setSelectedService(svc || null);
+
+                      if (svc) {
+                        localStorage.setItem(
+                          "kairos_last_service",
+                          String(svc.idService)
+                        );
+                      }
                     }}
                   >
                     <option value="">Seleccione un servicio</option>
@@ -182,16 +249,15 @@ export default function EmpleadoNextTurn() {
                     ) : (
                       <>
                         <svg
-                          width="20"
-                          height="20"
+                          width="22"
+                          height="22"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
                           className="me-2"
                         >
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
+                          <polyline points="9 18 15 12 9 6"></polyline>
                         </svg>
                         Llamar Siguiente Turno
                       </>
@@ -203,22 +269,31 @@ export default function EmpleadoNextTurn() {
                     onClick={handleComplete}
                     disabled={loading || !currentTurn}
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="me-2"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Marcar como Atendido
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        Procesando...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="me-2"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Marcar como Atendido
+                      </>
+                    )}
                   </button>
                 </div>
 
-                {/* Mensajes */}
+                {/* Mensajes de estado */}
                 {error && (
                   <div className="alert alert-danger alert-kairos mt-4" role="alert">
                     <svg
@@ -231,8 +306,8 @@ export default function EmpleadoNextTurn() {
                       className="me-2"
                     >
                       <circle cx="12" cy="12" r="10"></circle>
-                      <line x1="15" y1="9" x2="9" y2="15"></line>
-                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
                     {error}
                   </div>
@@ -261,111 +336,160 @@ export default function EmpleadoNextTurn() {
 
           {/* Turno Actual */}
           <div className="col-lg-7">
-            {currentTurn ? (
-              <div className="card shadow-xl border-0 slide-in-right">
-                <div className="card-header bg-success text-white py-4">
-                  <h3 className="mb-0 h4 fw-bold d-flex align-items-center">
-                    <span className="badge bg-white text-success me-3 pulse-badge">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                    </span>
-                    Turno en Atención
-                  </h3>
-                </div>
-                <div className="card-body p-5">
-                  <div className="text-center mb-4">
-                    <p className="text-muted mb-2 text-uppercase small fw-semibold">Número de Turno</p>
-                    <div className="display-1 fw-bold text-gradient-orange">{currentTurn.number}</div>
-                  </div>
-
-                  <div className="row g-4">
-                    <div className="col-md-6">
-                      <div className="info-card">
-                        <div className="icon-circle bg-primary bg-opacity-10 mb-3">
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            className="text-primary"
-                          >
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                          </svg>
-                        </div>
-                        <p className="text-muted small mb-1">Cliente</p>
-                        <p className="fw-bold mb-0 fs-5">{currentTurn.clientName}</p>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="info-card">
-                        <div className="icon-circle bg-success bg-opacity-10 mb-3">
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            className="text-success"
-                          >
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="9" y1="3" x2="9" y2="21"></line>
-                          </svg>
-                        </div>
-                        <p className="text-muted small mb-1">Servicio</p>
-                        <p className="fw-bold mb-0 fs-5">{currentTurn.serviceName}</p>
-                      </div>
-                    </div>
-
-                    <div className="col-12">
-                      <div className="info-card">
-                        <div className="icon-circle bg-warning bg-opacity-10 mb-3">
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            className="text-warning"
-                          >
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                          </svg>
-                        </div>
-                        <p className="text-muted small mb-1">Estado</p>
-                        <span className="badge bg-success fs-6">{currentTurn.state}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="card shadow-lg border-0 h-100">
-                <div className="card-body d-flex flex-column align-items-center justify-content-center text-center p-5">
+            <div className="card shadow-xl border-0 fade-in delay-1">
+              <div className="card-header bg-white py-3 d-flex align-items-center border-0 border-bottom">
+                <div className="icon-circle bg-gradient-orange-soft me-3">
                   <svg
-                    width="120"
-                    height="120"
+                    width="28"
+                    height="28"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="1"
-                    className="text-muted mb-4 opacity-25"
+                    strokeWidth="2"
                   >
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
-                  <h4 className="text-muted mb-2">No hay turno en atención</h4>
-                  <p className="text-muted mb-0">Selecciona un servicio y llama al siguiente turno</p>
+                </div>
+                <div>
+                  <h2 className="h5 mb-0 fw-bold">Turno en Atención</h2>
+                  <p className="text-muted small mb-0">
+                    Visualiza el turno que estás atendiendo actualmente.
+                  </p>
                 </div>
               </div>
-            )}
+
+              <div className="card-body p-4">
+                {currentTurn ? (
+                  <div className="turno-actual-container">
+                    <div className="row g-4 align-items-center">
+                      <div className="col-md-4">
+                        <div className="turno-badge bg-gradient-orange text-white text-center p-4 rounded-4 shadow-sm">
+                          <p className="mb-1 text-uppercase small opacity-75 text-black">
+                            Turno
+                          </p>
+                          <h1 className="display-3 fw-black mb-0 text-black">
+                            {currentTurn.number}
+                          </h1>
+                        </div>
+                      </div>
+
+                      <div className="col-md-8">
+                        <div className="row g-3">
+                          <div className="col-12">
+                            <div className="info-card">
+                              <div className="icon-circle bg-primary bg-opacity-10 mb-3">
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  className="text-primary"
+                                >
+                                  <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
+                                  <path d="M4 21v-2a4 4 0 0 1 3-3.87"></path>
+                                  <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                              </div>
+                              <p className="text-muted small mb-1">Cliente</p>
+                              <p className="fw-bold mb-0 fs-5">{currentTurn.clientName}</p>
+                            </div>
+                          </div>
+
+                          <div className="col-md-6">
+                            <div className="info-card">
+                              <div className="icon-circle bg-success bg-opacity-10 mb-3">
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  className="text-success"
+                                >
+                                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                              </div>
+                              <p className="text-muted small mb-1">Documento</p>
+                              <p className="fw-bold mb-0">{currentTurn.document}</p>
+                            </div>
+                          </div>
+
+                          <div className="col-md-6">
+                            <div className="info-card">
+                              <div className="icon-circle bg-info bg-opacity-10 mb-3">
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  className="text-info"
+                                >
+                                  <path d="M4 6h16"></path>
+                                  <path d="M4 10h16"></path>
+                                  <path d="M4 14h16"></path>
+                                  <path d="M4 18h16"></path>
+                                </svg>
+                              </div>
+                              <p className="text-muted small mb-1">Servicio</p>
+                              <p className="fw-bold mb-0 fs-5">{currentTurn.serviceName}</p>
+                            </div>
+                          </div>
+
+                          <div className="col-12">
+                            <div className="info-card">
+                              <div className="icon-circle bg-warning bg-opacity-10 mb-3">
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  className="text-warning"
+                                >
+                                  <circle cx="12" cy="12" r="10"></circle>
+                                  <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                              </div>
+                              <p className="text-muted small mb-1">Estado</p>
+                              <span className="badge bg-success fs-6">{currentTurn.state}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-5">
+                    <div className="icon-circle bg-light mb-3">
+                      <svg
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="text-muted"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                    </div>
+                    <h4 className="text-muted mb-2">No hay turno en atención</h4>
+                    <p className="text-muted mb-0">
+                      Selecciona un servicio y llama al siguiente turno
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

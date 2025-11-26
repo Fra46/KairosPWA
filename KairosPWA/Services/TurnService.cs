@@ -385,5 +385,25 @@ namespace KairosPWA.Services
 
             return _mapper.Map<List<TurnDTO>>(turns);
         }
+
+        public async Task<TurnDTO?> GetCurrentByServiceAsync(int serviceId, int clientId)
+        {
+            var query = _context.Turns
+                .Include(t => t.Client)
+                .Include(t => t.Service)
+                .Where(t => t.ServiceId == serviceId
+                         && t.ClientId == clientId
+                         && t.State == TurnState.EnAtencion.ToString());
+
+            var entity = await query
+                .OrderByDescending(t => t.IdTurn)
+                .FirstOrDefaultAsync();
+
+            if (entity == null)
+                return null;
+
+            return _mapper.Map<TurnDTO>(entity);
+        }
+
     }
 }

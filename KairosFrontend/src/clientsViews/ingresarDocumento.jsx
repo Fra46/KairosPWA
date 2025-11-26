@@ -68,18 +68,10 @@ export default function IngresarDocumento() {
   }
 
   return (
-    <div className="min-vh-100 bg-gradient-primary d-flex align-items-center py-5" style={{ position: "relative" }}>
+    <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
-        <div className="text-center mb-4">
-          <button className="btn btn-light btn-lg" onClick={() => navigate("/")} disabled={loading}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            <span className="ms-2">Volver</span>
-          </button>
-        </div>
 
-        <div className="card shadow-lg border-0 fade-in" style={{ maxWidth: "600px", margin: "0 auto" }}>
+        <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "600px", margin: "0 auto" }}>
           <div className="card-body p-5">
             <div className="text-center mb-4">
               <div
@@ -98,7 +90,6 @@ export default function IngresarDocumento() {
                 </svg>
               </div>
               <h2 className="kairos-logo-small mb-2">Digite su número de documento</h2>
-              <p className="text-muted mb-0">Ingrese su documento para continuar</p>
             </div>
 
             <div className="mb-4">
@@ -170,26 +161,38 @@ export default function IngresarDocumento() {
               </div>
             </div>
 
-            <button
-              className="btn btn-primary btn-lg w-100"
-              onClick={handleSubmit}
-              disabled={loading || !documento}
-              style={{ fontSize: "1.25rem", padding: "1rem" }}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2"></span>
-                  Verificando...
-                </>
-              ) : (
-                <>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="20 6 9 17 4 12" />
+            <div className="row g-3">
+              <div className="col-6">
+                <button className="btn btn-light btn-lg w-100 rounded-4" onClick={() => navigate("/")} disabled={loading}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
                   </svg>
-                  <span className="ms-2">Continuar</span>
-                </>
-              )}
-            </button>
+                  <span className="ms-2">Volver</span>
+                </button>
+              </div>
+
+              <div className="col-6">
+                <button
+                  className="btn btn-primary btn-lg w-100 rounded-4"
+                  onClick={handleSubmit}
+                  disabled={loading || !documento}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Verificando...
+                    </>
+                  ) : (
+                    <>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span className="ms-2">Continuar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
