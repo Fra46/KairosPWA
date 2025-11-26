@@ -61,7 +61,7 @@ export default function ConfirmacionTurno() {
                     <p className="text-white-50 mb-2 text-uppercase small fw-semibold letter-spacing">
                       Tu número de turno es
                     </p>
-                    <h2 className="display-1 fw-bold mb-0 glow-text">{turnNumber}</h2>
+                    <h2 className="display-1 fw-bold mb-0 glow-text text-black">{turnNumber}</h2>
                   </div>
                 </div>
 
