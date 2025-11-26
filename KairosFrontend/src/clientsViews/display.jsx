@@ -22,10 +22,15 @@ export default function Display() {
   const loadTurns = async () => {
     try {
       const data = await turnService.GetAll()
-      const activeOrInProgress = data.filter((t) => t.state === "Pendiente" || t.state === "EnAtencion")
+
+      const activeOrInProgress = data.filter(
+        (t) => t.state === "Pendiente" || t.state === "EnAtencion"
+      )
+
       setTurns(activeOrInProgress)
     } catch (err) {
-      console.error("Error cargando turnos:", err)
+      console.error("Error cargando turnos (pantalla):", err)
+      setTurns([])
     }
   }
 
@@ -121,7 +126,7 @@ export default function Display() {
                   <line x1="12" y1="8" x2="12" y2="12"></line>
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
-                <p className="text-white-50 mb-0 fs-5">No hay turnos en atención en este momento</p>
+                <p className="text-black-50 mb-0 fs-5">No hay turnos en atención en este momento</p>
               </div>
             </div>
           ) : (
@@ -194,7 +199,7 @@ export default function Display() {
                   <path d="M9 11l3 3L22 4"></path>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
-                <p className="text-white-50 mb-0 fs-5">No hay turnos pendientes</p>
+                <p className="text-black-50 mb-0 fs-5">No hay turnos pendientes</p>
               </div>
             </div>
           ) : (

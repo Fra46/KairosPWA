@@ -22,7 +22,7 @@ namespace KairosPWA.Controllers
 
         // GET: api/Turns
         [HttpGet]
-        [Authorize(Roles = "Administrador")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<TurnDTO>>> GetTurns()
         {
             var turns = await _turnService.GetAllTurnsAsync();
