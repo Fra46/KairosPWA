@@ -21,6 +21,7 @@ namespace KairosPWA.Services
             return clients.Select(c => new ClientDTO
             {
                 IdClient = c.IdClient,
+                Id = c.Id,
                 Name = c.Name,
                 State = c.State
             }).ToList();
@@ -34,6 +35,7 @@ namespace KairosPWA.Services
             return new ClientDTO
             {
                 IdClient = client.IdClient,
+                Id = client.Id,
                 Name = client.Name,
                 State = client.State
             };
@@ -41,7 +43,6 @@ namespace KairosPWA.Services
 
         public async Task<ClientDTO> CreateClientAsync(ClientDTO clientDto)
         {
-            // Asignar estado por defecto o validarlo
             if (string.IsNullOrWhiteSpace(clientDto.State))
             {
                 clientDto.State = ClientState.Activo.ToString();
@@ -56,6 +57,7 @@ namespace KairosPWA.Services
 
             var client = new Client
             {
+                Id = clientDto.Id,
                 Name = clientDto.Name,
                 State = clientDto.State
             };

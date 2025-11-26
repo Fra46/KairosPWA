@@ -1,9 +1,7 @@
-﻿using KairosPWA.Data;
-using KairosPWA.DTOs;
-using KairosPWA.Models;
+﻿using KairosPWA.DTOs;
+using KairosPWA.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Controllers
 {
@@ -12,95 +10,69 @@ namespace KairosPWA.Controllers
     [Authorize(Roles = "Administrador")]
     public class ClientsController : ControllerBase
     {
-        private readonly ConnectionContext _context;
+        private readonly ClientService _clientService;
 
-        public ClientsController(ConnectionContext context)
+        public ClientsController(ClientService clientService)
         {
-            _context = context;
+            _clientService = clientService;
         }
 
         // GET: api/Clients
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
         {
-            var clients = await _context.Clients.ToListAsync();
-
-            var clientsDto = clients.Select(c => new ClientDTO
-            {
-                IdClient = c.IdClient,
-                Id = c.Id,
-                Name = c.Name,
-                State = c.State
-            }).ToList();
-
-            return Ok(clientsDto);
+            var clients = await _clientService.GetAllClientsAsync();
+            return Ok(clients);
         }
 
         // GET: api/Clients/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _clientService.GetClientByIdAsync(id);
 
             if (client == null)
-            {
                 return NotFound();
-            }
 
-            var clientDto = new ClientDTO
-            {
-                IdClient = client.IdClient,
-                Id = client.Id,
-                Name = client.Name,
-                State = client.State
-            };
-
-            return Ok(clientDto);
+            return Ok(client);
         }
 
         // PUT: api/Clients/5
-        // To protect from overposting attacks, receive a DTO and map allowed fields
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, ClientDTO clientDto)
+        public async Task<IActionResult> PutClient(int id, [FromBody] ClientDTO clientDto)
         {
             if (id != clientDto.IdClient)
-            {
-                return BadRequest();
-            }
+                return BadRequest("Id de ruta y de cuerpo no coinciden.");
 
-            var client = await _context.Clients.FindAsync(id);
-            if (client == null)
-            {
+            var updated = await _clientService.UpdateClientAsync(id, clientDto);
+
+            if (!updated)
                 return NotFound();
-            }
-
-            client.Id = clientDto.Id;
-            client.Name = clientDto.Name;
-            client.State = clientDto.State;
-
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Clients
-        // To protect from overposting attacks, receive a DTO and map to entity
         [HttpPost]
-        public async Task<ActionResult<ClientDTO>> PostClient(ClientDTO clientDto)
+        public async Task<ActionResult<ClientDTO>> PostClient([FromBody] ClientDTO clientDto)
         {
-            var client = new Client
-            {
-                Id = clientDto.Id,
-                Name = clientDto.Name,
-                State = clientDto.State
-            };
+            var createdClient = await _clientService.CreateClientAsync(clientDto);
 
-            _context.Clients.Add(client);
-            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetClient),
+                new { id = createdClient.IdClient },
+                createdClient);
+        }
 
-            clientDto.IdClient = client.IdClient;
+        // DELETE: api/Clients/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteClient(int id)
+        {
+            var deleted = await _clientService.DeleteClientAsync(id);
 
-            return CreatedAtAction(nameof(GetClient), new { id = client.IdClient }, clientDto);
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }
