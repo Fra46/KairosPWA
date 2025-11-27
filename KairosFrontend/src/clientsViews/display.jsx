@@ -21,13 +21,11 @@ export default function Display() {
 
   const loadTurns = async () => {
     try {
+      // Trae todos los turnos y filtra los que están "EnAtencion"
       const data = await turnService.GetAll()
-
-      const activeOrInProgress = data.filter(
-        (t) => t.state === "Pendiente" || t.state === "EnAtencion"
-      )
-
-      setTurns(activeOrInProgress)
+      const inAttention = data.filter((t) => t.state === "EnAtencion")
+      // Mantener sólo los primeros 5
+      setTurns(inAttention.slice(0, 5))
     } catch (err) {
       console.error("Error cargando turnos (pantalla):", err)
       setTurns([])
@@ -38,7 +36,6 @@ export default function Display() {
     try {
       const connection = await startConnection()
       connection.on("TurnUpdated", () => {
-        console.log("Display: Turno actualizado")
         loadTurns()
       })
     } catch (err) {
@@ -57,185 +54,201 @@ export default function Display() {
   const formatDate = (date) => {
     return date.toLocaleDateString("es-ES", {
       weekday: "long",
-      year: "numeric",
+      day: "2-digit",
       month: "long",
-      day: "numeric",
+      year: "numeric",
     })
   }
 
-  const turnsInProgress = turns.filter((t) => t.state === "EnAtencion")
-  const turnsPending = turns.filter((t) => t.state === "Pendiente")
+  // turns ya contiene hasta 5 turnos "EnAtencion"
+  const turnsInProgress = turns
+  const mainTurn = turnsInProgress[0] // principal (si existe)
+  const otherTurns = turnsInProgress.slice(1) // hasta 4 restantes
 
   return (
-    <div className="min-vh-100 bg-gradient-display py-4">
-      <div className="container-fluid">
-        {/* Header con reloj */}
-        <div className="display-header mb-4">
-          <div className="row align-items-center">
-            <div className="col-md-4">
-              <div className="d-flex align-items-center">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="text-white me-3"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                <div>
-                  <h1 className="display-4 fw-bold text-white mb-0 glow-text">KAIROS</h1>
-                  <p className="text-white-50 mb-0 small">Sistema de Gestión de Turnos</p>
+    <div className="min-vh-100" style={{ display: "flex", flexDirection: "column" }}>
+      {/* Contenedor principal */}
+      <div className="flex-grow-1 container-fluid px-0 py-4" style={{ display: "flex" }}>
+        {/* Sección izquierda - Video de fondo */}
+        <div className="col-8 px-4" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: "24px",
+              background: "linear-gradient(135deg, rgba(87, 83, 79, 0.42) 0%, rgba(80, 79, 79, 0.2) 100%)",
+              border: "3px solid rgba(255, 255, 255, 0.3)",
+              backdropFilter: "blur(10px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 20px 40px rgba(0, 0, 0, 0.3)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            {/* Header dentro del canvas del video (top-left) */}
+            <div
+              style={{
+                position: "absolute",
+                top: 16,
+                left: 16,
+                right: 16,
+                zIndex: 30,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: "rgba(255,255,255,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.25)"
+                }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
                 </div>
+                <h2 style={{ color: "white", margin: 0, fontSize: 20, fontWeight: 700 }}>KAIROS</h2>
+              </div>
+
+              <div style={{ textAlign: "right", color: "white", pointerEvents: "none" }}>
+                <div style={{ textTransform: "capitalize", fontSize: 14, opacity: 0.95 }}>{formatDate(currentTime)}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4 }}>{formatTime(currentTime)}</div>
               </div>
             </div>
-            <div className="col-md-8 text-md-end">
-              <div className="display-clock">
-                <div className="clock-time text-white fw-bold">{formatTime(currentTime)}</div>
-                <div className="clock-date text-white-50">{formatDate(currentTime)}</div>
-              </div>
-            </div>
+
+            {/* Aquí irá el video */}
+            <video
+              autoPlay
+              muted
+              loop
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "20px",
+              }}
+            >
+              {/* Reemplaza con tu video */}
+              <source src="/videos/display-evade.mp4" type="video/mp4" />
+            </video>
+
+            {/* Overlay oscuro semi-transparente si necesitas */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.1)",
+                borderRadius: "20px",
+              }}
+            />
           </div>
         </div>
 
-        {/* Turnos en atención */}
-        <div className="mb-4">
-          <div className="section-header mb-3">
-            <h2 className="text-white fw-bold d-flex align-items-center">
-              <span className="badge bg-success me-3 pulse-badge">{turnsInProgress.length}</span>
-              EN ATENCIÓN
-            </h2>
-          </div>
-
-          {turnsInProgress.length === 0 ? (
-            <div className="card glass-card text-center py-5">
-              <div className="card-body">
-                <svg
-                  width="64"
-                  height="64"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-muted mb-3 opacity-50"
+        {/* Sección derecha - Turnos en atención (col-4) - tarjetas homogéneas */}
+        <div className="col-4 px-4 d-flex flex-column justify-content-start align-items-stretch">
+          {turnsInProgress.length > 0 ? (
+            <div style={{ width: "100%", display: "grid", gap: "1rem", alignContent: "start" }}>
+              <div className="text-center mb-2">
+                <span
+                  className="badge pulse-badge"
+                  style={{
+                    background: "linear-gradient(135deg, var(--kairos-success) 0%, #059669 100%)",
+                    fontSize: "1.1rem",
+                    padding: "0.5rem 1.25rem",
+                    borderRadius: "999px",
+                    boxShadow: "0 8px 24px rgba(16,185,129,0.18)",
+                    display: "inline-block",
+                    fontWeight: 700,
+                  }}
                 >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <p className="text-black-50 mb-0 fs-5">No hay turnos en atención en este momento</p>
+                  EN ATENCIÓN
+                </span>
               </div>
-            </div>
-          ) : (
-            <div className="row g-3">
-              {turnsInProgress.map((turn) => (
-                <div key={turn.idTurn} className="col-md-6 col-lg-4">
-                  <div className="turn-card turn-card-active">
-                    <div className="turn-card-header">
-                      <span className="badge bg-success mb-2">EN ATENCIÓN</span>
-                      <div className="turn-number-large">{turn.number}</div>
+
+              {turnsInProgress.map((t) => (
+                <button
+                  key={t.id}
+                  className="numpad-btn d-flex align-items-center justify-content-between"
+                  style={{
+                    width: "100%",
+                    padding: "0.9rem 1rem",
+                    borderRadius: 14,
+                    border: "1px solid rgba(243, 160, 56, 0.12)",
+                    background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,250,250,0.95) 100%)",
+                    boxShadow: "0 12px 30px rgba(16,24,40,0.06)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    cursor: "default",
+                    textAlign: "left",
+                    minHeight: 86,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: 12,
+                        background: "linear-gradient(135deg, rgba(251,146,60,0.12), rgba(249,115,22,0.06))",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "inset 0 -6px 12px rgba(234,88,12,0.06)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--kairos-primary)" strokeWidth="1.8">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="3" x2="9" y2="21" />
+                      </svg>
                     </div>
-                    <div className="turn-card-body">
-                      <div className="turn-info-item">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                          <line x1="9" y1="3" x2="9" y2="21"></line>
-                        </svg>
-                        <span>{turn.serviceName}</span>
-                      </div>
-                      <div className="turn-info-item">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span>{turn.clientName}</span>
-                      </div>
+
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: "var(--kairos-primary)" }}>{t.serviceName}</div>
+                      <div style={{ fontSize: 13, color: "var(--kairos-gray-700)", marginTop: 6 }}>{t.clientName}</div>
                     </div>
                   </div>
-                </div>
+
+                  <div
+                    style={{
+                      minWidth: 64,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0.45rem 0.6rem",
+                      borderRadius: 12,
+                      background: "linear-gradient(135deg, rgba(251,146,60,0.12) 0%, rgba(249,115,22,0.06) 100%)",
+                      fontSize: 22,
+                      fontWeight: 900,
+                      color: "var(--kairos-primary-dark)",
+                      boxShadow: "0 6px 18px rgba(234,88,12,0.06)",
+                    }}
+                  >
+                    {t.number}
+                  </div>
+                </button>
               ))}
-            </div>
-          )}
-        </div>
-
-        {/* Turnos pendientes */}
-        <div>
-          <div className="section-header mb-3">
-            <h2 className="text-white fw-bold d-flex align-items-center">
-              <span className="badge bg-warning text-dark me-3">{turnsPending.length}</span>
-              PENDIENTES
-            </h2>
-          </div>
-
-          {turnsPending.length === 0 ? (
-            <div className="card glass-card text-center py-5">
-              <div className="card-body">
-                <svg
-                  width="64"
-                  height="64"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-muted mb-3 opacity-50"
-                >
-                  <path d="M9 11l3 3L22 4"></path>
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                </svg>
-                <p className="text-black-50 mb-0 fs-5">No hay turnos pendientes</p>
-              </div>
             </div>
           ) : (
-            <div className="row g-3">
-              {turnsPending.slice(0, 6).map((turn) => (
-                <div key={turn.idTurn} className="col-md-6 col-lg-4 col-xl-3">
-                  <div className="turn-card turn-card-pending">
-                    <div className="turn-card-header">
-                      <span className="badge bg-warning text-dark mb-2">PENDIENTE</span>
-                      <div className="turn-number-medium">{turn.number}</div>
-                    </div>
-                    <div className="turn-card-body">
-                      <div className="turn-info-item">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                          <line x1="9" y1="3" x2="9" y2="21"></line>
-                        </svg>
-                        <span className="small">{turn.serviceName}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {turnsPending.length > 6 && (
-            <div className="text-center mt-3">
-              <span className="badge bg-secondary fs-6 px-4 py-2">+{turnsPending.length - 6} turnos más en espera</span>
+            <div className="text-center" style={{ paddingTop: 24 }}>
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1" className="mb-3">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <p className="text-black fw-bold fs-5 mb-0">No hay turnos en atención</p>
             </div>
           )}
         </div>

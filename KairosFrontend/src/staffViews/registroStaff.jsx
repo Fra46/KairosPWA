@@ -20,7 +20,6 @@ export default function RegistroStaff() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
-  // Cargar roles desde /api/rols
   useEffect(() => {
     const loadRoles = async () => {
       try {
@@ -50,7 +49,6 @@ export default function RegistroStaff() {
     setError("")
     setSuccess(false)
 
-    // Validaciones básicas
     if (!formData.userName.trim()) {
       setError("El nombre de usuario es obligatorio.")
       return
@@ -74,7 +72,6 @@ export default function RegistroStaff() {
     setLoading(true)
 
     try {
-      // Usamos directamente el rolId seleccionado
       const rolId = Number(formData.rolId)
 
       await userService.Create({
@@ -85,8 +82,6 @@ export default function RegistroStaff() {
       })
 
       setSuccess(true)
-
-      // Ir a la lista de usuarios
       navigate("/admin/usuarios")
     } catch (err) {
       console.error(err)
@@ -109,100 +104,111 @@ export default function RegistroStaff() {
   }
 
   return (
-    <div className="container py-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <div className="card shadow-lg border-0 fade-in">
-            <div className="card-header bg-primary text-white">
-              <h2 className="mb-0 h4">Registrar Personal</h2>
+    <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "680px", margin: "0 auto" }}>
+          <div className="card-body p-5">
+            <div className="text-center mb-4">
+              <div
+                className="d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%)",
+                  boxShadow: "var(--shadow-primary)",
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+
+              <h2 className="kairos-logo-small mb-1">Registrar Personal</h2>
+              <p className="text-muted mb-3">Cree una cuenta para el personal del sistema</p>
             </div>
 
-            <div className="card-body p-4">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {success && (
-                <div className="alert alert-success">
-                  Usuario registrado correctamente.
-                </div>
-              )}
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && (
+              <div className="alert alert-success">
+                Usuario registrado correctamente.
+              </div>
+            )}
 
-              <form onSubmit={handleSubmit}>
-                {/* Usuario */}
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Usuario</label>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Usuario</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="userName"
+                  value={formData.userName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="row">
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold">Contraseña</label>
                   <input
-                    type="text"
+                    type="password"
                     className="form-control"
-                    name="userName"
-                    value={formData.userName}
+                    name="password"
+                    value={formData.password}
                     onChange={handleChange}
                     required
                   />
                 </div>
 
-                {/* Contraseñas */}
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Contraseña</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label fw-semibold">Confirmar</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Rol */}
-                <div className="mb-4">
-                  <label className="form-label fw-semibold">Rol</label>
-                  <select
-                    className="form-select"
-                    name="rolId"
-                    value={formData.rolId}
+                <div className="col-md-6 mb-3">
+                  <label className="form-label fw-semibold">Confirmar</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
                     onChange={handleChange}
-                  >
-                    {roles.map((r) => (
-                      <option key={r.idRol} value={r.idRol}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </select>
+                    required
+                  />
                 </div>
+              </div>
 
-                {/* Botones */}
-                <div className="d-flex gap-2">
-                  <button
-                    type="submit"
-                    className="btn btn-primary flex-fill"
-                    disabled={loading}
-                  >
-                    {loading ? "Registrando..." : "Registrar"}
-                  </button>
+              <div className="mb-4">
+                <label className="form-label fw-semibold">Rol</label>
+                <select
+                  className="form-select"
+                  name="rolId"
+                  value={formData.rolId}
+                  onChange={handleChange}
+                >
+                  {roles.map((r) => (
+                    <option key={r.idRol} value={r.idRol}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => navigate("/admin/usuarios")}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="d-flex gap-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary flex-fill"
+                  disabled={loading}
+                >
+                  {loading ? "Registrando..." : "Registrar"}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => navigate("/admin/usuarios")}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -96,18 +96,12 @@ namespace KairosPWA.Services
             return true;
         }
 
-        public async Task<bool> UserExistsAsync(string name)
-        {
-            var normalizedName = name.Trim();
-            return await _context.Users.AnyAsync(u => u.UserName == normalizedName);
-        }
-
-        public async Task<bool> ChangePasswordAsync(int id, string newPassword)
+        public async Task<bool> DeleteUserAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return false;
 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return true;
         }

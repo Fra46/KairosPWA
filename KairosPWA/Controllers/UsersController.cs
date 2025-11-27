@@ -113,6 +113,17 @@ namespace KairosPWA.Controllers
             });
         }
 
+        // DELETE: api/Users/5
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var deleted = await _userService.DeleteUserAsync(id);
+            if (!deleted) return NotFound(new { message = "Usuario no encontrado." });
+
+            return NoContent();
+        }
+
         [HttpGet("turns-by-service")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetTurnsByUserAndService()

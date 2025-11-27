@@ -68,96 +68,106 @@ export default function AdminServices() {
   }
 
   return (
-    <div className="container py-5">
-      <div className="card shadow-lg border-0 fade-in">
-
-        <div className="card-header bg-primary text-white">
-          <h2 className="mb-0 h4">
-            <i className="bi bi-grid-3x3-gap me-2"></i>
-            Administrar Servicios
-          </h2>
-        </div>
-
-        <div className="card-body p-4">
-
-          <form onSubmit={handleSubmit} className="mb-4">
-            <div className="row g-3">
-              <div className="col-md-5">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Nombre del servicio"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
+    <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div className="card-body p-5">
+            <div className="text-center mb-4">
+              <div
+                className="d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-dark) 100%)",
+                  boxShadow: "var(--shadow-primary)",
+                }}
+              >
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M3 12h18M12 3v18" />
+                </svg>
               </div>
 
-              <div className="col-md-5">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Descripción"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                />
-              </div>
-
-              <div className="col-md-2">
-                <button type="submit" className="btn btn-primary w-100">
-                  {editing ? "Actualizar" : "Agregar"}
-                </button>
-              </div>
+              <h2 className="kairos-logo-small mb-1">Administrar Servicios</h2>
+              <p className="text-muted mb-3">Cree, edite o elimine servicios disponibles</p>
             </div>
-          </form>
 
-          {loading && <p>Cargando servicios...</p>}
-          {error && <div className="alert alert-danger">{error}</div>}
+            <form onSubmit={handleSubmit} className="mb-4">
+              <div className="row g-3">
+                <div className="col-md-5">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Nombre del servicio"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
 
-          {!loading && services.length > 0 && (
-            <div className="table-responsive">
-              <table className="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
+                <div className="col-md-5">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Descripción"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
 
-                <tbody>
-                  {services.map((svc) => (
-                    <tr key={svc.idService}>
-                      <td className="fw-semibold">{svc.name}</td>
-                      <td>{svc.description || "-"}</td>
-                      <td><span className="badge bg-success">{svc.state}</span></td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => handleEdit(svc)}
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
+                <div className="col-md-2">
+                  <button type="submit" className="btn btn-primary w-100">
+                    {editing ? "Actualizar" : "Agregar"}
+                  </button>
+                </div>
+              </div>
+            </form>
 
-                        <button
-                          className="btn btn-sm btn-danger"
-                          onClick={() => handleDelete(svc.idService)}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
+            {loading && <p>Cargando servicios...</p>}
+            {error && <div className="alert alert-danger">{error}</div>}
 
-                      </td>
+            {!loading && services.length > 0 && (
+              <div className="table-responsive">
+                <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Descripción</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
+                  </thead>
 
-              </table>
-            </div>
-          )}
+                  <tbody>
+                    {services.map((svc) => (
+                      <tr key={svc.idService}>
+                        <td className="fw-semibold">{svc.name}</td>
+                        <td>{svc.description || "-"}</td>
+                        <td><span className="badge bg-success">{svc.state}</span></td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-outline-primary me-2"
+                            onClick={() => handleEdit(svc)}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
 
+                          <button
+                            className="btn btn-sm btn-danger"
+                            onClick={() => handleDelete(svc.idService)}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-
       </div>
     </div>
   )

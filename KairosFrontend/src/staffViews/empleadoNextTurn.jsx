@@ -15,6 +15,26 @@ export default function EmpleadoNextTurn() {
   const [error, setError] = useState("")
   const [info, setInfo] = useState("")
 
+  // Lista local de turnos llamados (persistida por user + service)
+  const [calledTurns, setCalledTurns] = useState([])
+
+  // Helper para obtener número de documento con múltiples fallbacks
+  const getDocument = (t) => {
+    if (!t) return ""
+    const doc = (
+      t.document ||
+      t.documentNumber ||
+      t.documento ||
+      t.dni ||
+      t.cedula ||
+      t.clientDocument ||
+      t.identification ||
+      ""
+    )
+    console.log("getDocument result:", doc, "from turn:", t)
+    return doc
+  }
+
   // Load available services
   useEffect(() => {
     loadServices()
@@ -60,6 +80,26 @@ export default function EmpleadoNextTurn() {
     }
   }, [services]);
 
+  // Generador de key para persistir llamados por usuario+servicio
+  const calledKey = () =>
+    `kairos_called_turns_${user?.id ?? "anon"}_${selectedService?.idService ?? "none"}`
+
+  // Cargar lista de turnos llamados desde localStorage cuando cambia servicio o user
+  useEffect(() => {
+    if (!user || !selectedService) {
+      setCalledTurns([])
+      return
+    }
+    try {
+      const raw = localStorage.getItem(calledKey())
+      if (raw) {
+        setCalledTurns(JSON.parse(raw))
+      }
+    } catch (e) {
+      console.error("Error cargando turnos llamados:", e)
+    }
+  }, [user, selectedService])
+
   // Cargar turno actual en atención para el empleado y servicio seleccionados
   useEffect(() => {
     const fetchCurrentTurn = async () => {
@@ -73,6 +113,18 @@ export default function EmpleadoNextTurn() {
           user.id
         );
         setCurrentTurn(response);
+        // si viene un turno actual, asegurarse que esté también en la lista local
+        if (response) {
+          setCalledTurns((prev) => {
+            const id = response.idTurn ?? response.id ?? response._id ?? response.turnId
+            if (!prev.find((t) => (t.idTurn ?? t.id ?? t._id ?? t.turnId) === id)) {
+              const next = [response, ...prev]
+              try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+              return next
+            }
+            return prev
+          })
+        }
       } catch (err) {
         if (err.response?.status === 404) {
           // No hay turno en atención para este servicio y usuario
@@ -118,6 +170,16 @@ export default function EmpleadoNextTurn() {
 
       // Turno pasa a "EnAtencion" → lo mostramos como actual
       setCurrentTurn(response);
+      // agregar a lista local (persistida)
+      setCalledTurns((prev) => {
+        const id = response.idTurn ?? response.id ?? response._id ?? response.turnId
+        if (prev.find((t) => (t.idTurn ?? t.id ?? t._id ?? t.turnId) === id)) {
+          return prev
+        }
+        const next = [response, ...prev]
+        try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+        return next
+      })
       setInfo("Turno llamado correctamente.");
     } catch (err) {
       console.error(err);
@@ -145,10 +207,17 @@ export default function EmpleadoNextTurn() {
     setLoading(true);
 
     try {
-      const response = await turnService.CompleteCurrent(
-        selectedService.idService,
-        user.id
-      );
+      // Intentar completar por id si el servicio lo provee, si no usar CompleteCurrent como fallback
+      const turnId = currentTurn.idTurn ?? currentTurn.id ?? currentTurn._id ?? currentTurn.turnId
+      let response
+      if (typeof turnService.CompleteById === "function" && turnId) {
+        response = await turnService.CompleteById(turnId)
+      } else {
+        response = await turnService.CompleteCurrent(
+          selectedService.idService,
+          user.id
+        );
+      }
 
       if (response?.message) {
         setInfo(response.message);
@@ -157,6 +226,15 @@ export default function EmpleadoNextTurn() {
 
       // El turno completado ya NO debe mostrarse como actual
       setCurrentTurn(null);
+      // eliminar de lista local
+      setCalledTurns((prev) => {
+        const next = prev.filter((t) => {
+          const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
+          return id !== turnId
+        })
+        try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+        return next
+      })
       setInfo("Turno marcado como atendido.");
     } catch (err) {
       console.error(err);
@@ -169,15 +247,26 @@ export default function EmpleadoNextTurn() {
     }
   };
 
+  // Persistir lista local cuando cambie (por si hay cambios fuera del flujo anterior)
+  useEffect(() => {
+    try {
+      if (user && selectedService) {
+        localStorage.setItem(calledKey(), JSON.stringify(calledTurns))
+      }
+    } catch (e) {
+      console.error("Error guardando turnos llamados:", e)
+    }
+  }, [calledTurns])
+
   return (
     <div className="min-vh-100 bg-light py-5">
       <div className="container">
         <div className="row g-4">
           {/* Panel de control */}
           <div className="col-lg-5">
-            <div className="card shadow-xl border-0 fade-in">
+            <div className="card shadow-xl border-0 fade-in rounded-5">
               <div className="card-header bg-gradient-orange text-white py-3 d-flex align-items-center">
-                <div className="icon-circle bg-white bg-opacity-10 me-3">
+                <div className="icon-circle bg-gradient-orange-soft bg-opacity-10 me-3">
                   <svg
                     width="28"
                     height="28"
@@ -293,6 +382,44 @@ export default function EmpleadoNextTurn() {
                   </button>
                 </div>
 
+                {/* Lista de turnos llamados localmente */}
+                {calledTurns?.length > 0 && (
+                  <div className="mt-4">
+                    <label className="form-label fw-semibold">Turnos llamados</label>
+                    <div className="list-group">
+                      {calledTurns.map((t) => {
+                        const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            className={"list-group-item list-group-item-action d-flex justify-content-between align-items-center " + ( (currentTurn && ((currentTurn.idTurn ?? currentTurn.id ?? currentTurn._id ?? currentTurn.turnId) === id)) ? "active" : "" )}
+                            onClick={() => {
+                              setCurrentTurn(t)
+                              setInfo("Turno seleccionado desde la lista local.")
+                              setError("")
+                            }}
+                          >
+                            <div>
+                              <strong className="me-2">#{t.number}</strong>
+                              <div>
+                                <small className="text-muted d-block">{t.clientName}</small>
+                                {getDocument(t) && (
+                                  <small className="text-muted">Doc: {getDocument(t)}</small>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-end">
+                              <small className="d-block">{t.serviceName}</small>
+                              <small className="badge bg-secondary">{t.state}</small>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Mensajes de estado */}
                 {error && (
                   <div className="alert alert-danger alert-kairos mt-4" role="alert">
@@ -336,9 +463,9 @@ export default function EmpleadoNextTurn() {
 
           {/* Turno Actual */}
           <div className="col-lg-7">
-            <div className="card shadow-xl border-0 fade-in delay-1">
-              <div className="card-header bg-white py-3 d-flex align-items-center border-0 border-bottom">
-                <div className="icon-circle bg-gradient-orange-soft me-3">
+            <div className="card shadow-xl border-0 fade-in delay-1 rounded-5">
+              <div className="card-header bg-gradient-orange text-white py-3 d-flex align-items-center">
+                <div className="icon-circle bg-gradient-orange-soft bg-opacity-10 me-3">
                   <svg
                     width="28"
                     height="28"
@@ -352,10 +479,7 @@ export default function EmpleadoNextTurn() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="h5 mb-0 fw-bold">Turno en Atención</h2>
-                  <p className="text-muted small mb-0">
-                    Visualiza el turno que estás atendiendo actualmente.
-                  </p>
+                  <h2 className="h5 mb-0 fw-bold text-white">Turno en Atención</h2>
                 </div>
               </div>
 
@@ -415,7 +539,7 @@ export default function EmpleadoNextTurn() {
                                 </svg>
                               </div>
                               <p className="text-muted small mb-1">Documento</p>
-                              <p className="fw-bold mb-0">{currentTurn.document}</p>
+                              <p className="fw-bold mb-0">{getDocument(currentTurn) || <span className="text-muted">No disponible</span>}</p>
                             </div>
                           </div>
 
@@ -468,7 +592,7 @@ export default function EmpleadoNextTurn() {
                   </div>
                 ) : (
                   <div className="text-center py-5">
-                    <div className="icon-circle bg-light mb-3">
+                    <div className="icon-circle mb-3">
                       <svg
                         width="48"
                         height="48"
