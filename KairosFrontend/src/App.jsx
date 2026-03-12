@@ -12,7 +12,6 @@ import Display from './clientsViews/display';
 
 // Vistas de personal
 import Login from './views/login';
-import Recover from './views/recover';
 import RegistroStaff from './staffViews/registroStaff';
 import ListarUsuarios from './staffViews/listarUsuarios';
 import AdminServices from './staffViews/adminServices';
@@ -38,7 +37,6 @@ function App() {
 
             {/* Acceso personal */}
             <Route path="/login" element={<Login />} />
-            <Route path="/recuperar" element={<Recover />} />
 
             {/* SOLO ADMIN — Registro de nuevos empleados/usuarios */}
             <Route

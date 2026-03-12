@@ -14,13 +14,13 @@ namespace KairosPWA.Services
         private readonly ConnectionContext _context;
         private readonly IMapper _mapper;
         private readonly IHubContext<NotificationsHub> _hubContext;
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
         public TurnService(
             ConnectionContext context,
             IMapper mapper,
             IHubContext<NotificationsHub> hubContext,
-            UserService userService)
+            IUserService userService)
         {
             _context = context;
             _mapper = mapper;

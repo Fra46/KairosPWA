@@ -1,12 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { turnService } from "../services/turnService"
 import { startConnection } from "../services/signalR"
 
 export default function Display() {
   const [turns, setTurns] = useState([])
   const [currentTime, setCurrentTime] = useState(new Date())
+
+  // Para detectar nuevos turnos en atención
+  const prevTurnIdsRef = useRef([])
+  const hasMountedRef = useRef(false)
 
   useEffect(() => {
     loadTurns()
@@ -60,6 +64,53 @@ export default function Display() {
     })
   }
 
+  //Reproducir sonido
+  const playTurnSound = () => {
+    try {
+      const audio = new Audio("/sounds/turno.mp3")
+      audio.play().catch((err) => {
+        // Algunos navegadores bloquean el autoplay sin interacción previa
+        console.warn("No se pudo reproducir el sonido del turno:", err)
+      })
+    } catch (err) {
+      console.error("Error creando el audio del turno:", err)
+    }
+  }
+
+  // Anunciar turno con voz (Web Speech API)
+  const announceTurn = (turn) => {
+    if (typeof window === "undefined") return
+    if (!("speechSynthesis" in window)) return
+
+    const { number, serviceName } = turn
+    const text = `Turno ${number}, servicio ${serviceName}`
+
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = "es-ES"
+    utterance.rate = 1
+    utterance.pitch = 1
+
+    window.speechSynthesis.speak(utterance)
+  }
+
+  // Efecto para detectar nuevos turnos "EnAtencion"
+  useEffect(() => {
+    const currentIds = turns.map((t) => t.id)
+    const prevIds = prevTurnIdsRef.current
+
+    // Buscar turnos nuevos que no estaban antes
+    const newTurns = turns.filter((t) => !prevIds.includes(t.id))
+
+    // Evitar que suene en el primer render (solo queremos cambios posteriores)
+    if (hasMountedRef.current && newTurns.length > 0) {
+      playTurnSound()
+      newTurns.forEach((t) => announceTurn(t))
+    }
+
+    prevTurnIdsRef.current = currentIds
+    hasMountedRef.current = true
+  }, [turns])
+
   // turns ya contiene hasta 5 turnos "EnAtencion"
   const turnsInProgress = turns
   const mainTurn = turnsInProgress[0] // principal (si existe)
@@ -70,7 +121,10 @@ export default function Display() {
       {/* Contenedor principal */}
       <div className="flex-grow-1 container-fluid px-0 py-4" style={{ display: "flex" }}>
         {/* Sección izquierda - Video de fondo */}
-        <div className="col-8 px-4" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+        <div
+          className="col-8 px-4"
+          style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}
+        >
           <div
             style={{
               width: "100%",
@@ -102,16 +156,18 @@ export default function Display() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  background: "rgba(255,255,255,0.08)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 6px 18px rgba(0,0,0,0.25)"
-                }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 10,
+                    background: "rgba(255,255,255,0.08)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
+                  }}
+                >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.6">
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />

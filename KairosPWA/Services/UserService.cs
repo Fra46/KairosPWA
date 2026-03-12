@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly ConnectionContext _context;
         private readonly IMapper _mapper;

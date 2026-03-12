@@ -33,6 +33,4 @@ namespace KairosPWA.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "El Id de servicio debe ser mayor que cero.")]
         public int ServiceId { get; set; }
     }
-
-
 }
