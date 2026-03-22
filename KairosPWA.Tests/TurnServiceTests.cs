@@ -24,7 +24,6 @@ namespace KairosWebAPI.Tests
         [SetUp]
         public void Setup()
         {
-            // BD en memoria — cada test tiene su propia BD limpia
             var options = new DbContextOptionsBuilder<ConnectionContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
@@ -33,7 +32,6 @@ namespace KairosWebAPI.Tests
             _mapperMock = new Mock<IMapper>();
             _userServiceMock = new Mock<IUserService>();
 
-            // Mock de SignalR: simula el envío sin hacer nada real
             var clientProxyMock = new Mock<IClientProxy>();
             clientProxyMock
                 .Setup(x => x.SendCoreAsync(
@@ -63,7 +61,14 @@ namespace KairosWebAPI.Tests
 
         private async Task<Service> AgregarServicioAsync(int id = 1)
         {
-            var service = new Service { IdService = id, Name = "Consulta General" };
+            var service = new Service
+            {
+                IdService = id,
+                Name = "Consulta General",
+                // FIX: Description y State son required en el modelo
+                Description = "Servicio de prueba",
+                State = "Activo"
+            };
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
             return service;
@@ -104,9 +109,11 @@ namespace KairosWebAPI.Tests
         public async Task CreatePublicTurnAsync_ClienteNuevo_CreaClienteYTurno()
         {
             await AgregarServicioAsync(1);
+
+            // FIX: el mapper devuelve el número real del turno creado, no hardcodeado
             _mapperMock
                 .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
-                .Returns(new TurnDTO { Number = 1, State = "Pendiente" });
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, State = "Pendiente" });
 
             var dto = new PublicTurnCreateDTO
             {
@@ -125,7 +132,7 @@ namespace KairosWebAPI.Tests
         [Test]
         public async Task CreatePublicTurnAsync_YaTienePendiente_LanzaExcepcion()
         {
-            var service = await AgregarServicioAsync(1);
+            await AgregarServicioAsync(1);
             var client = await AgregarClienteAsync("12345678");
 
             _context.Turns.Add(new Turn
@@ -174,13 +181,13 @@ namespace KairosWebAPI.Tests
             var dto = new PublicTurnCreateDTO
             {
                 ServiceId = 1,
-                ClientDocument = "22222222", // cliente diferente
+                ClientDocument = "22222222",
                 ClientName = "Pedro López"
             };
 
             var result = await _turnService.CreatePublicTurnAsync(dto);
 
-            Assert.That(result.Number, Is.EqualTo(6)); // debe ser 5 + 1
+            Assert.That(result.Number, Is.EqualTo(6));
         }
 
         // ─── CancelPublicTurnAsync ──────────────────────────────────
@@ -260,7 +267,7 @@ namespace KairosWebAPI.Tests
 
             var result = await _turnService.GetServiceQueueSummaryAsync(1);
 
-            Assert.That(result.CurrentNumber, Is.EqualTo(1)); // último atendido
+            Assert.That(result.CurrentNumber, Is.EqualTo(1));
             Assert.That(result.LastNumber, Is.EqualTo(3));
             Assert.That(result.PendingCount, Is.EqualTo(2));
         }
@@ -278,19 +285,35 @@ namespace KairosWebAPI.Tests
         public async Task ChangeTurnState_EstadoInvalido_LanzaArgumentException()
         {
             var client = await AgregarClienteAsync();
-            var turn = new Turn { Number = 1, State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now };
+            var turn = new Turn
+            {
+                Number = 1,
+                State = TurnState.Pendiente.ToString(),
+                ClientId = client.IdClient,
+                ServiceId = 1,
+                FechaHora = DateTime.Now
+            };
             _context.Turns.Add(turn);
             await _context.SaveChangesAsync();
 
-            Assert.ThrowsAsync<ArgumentException>(
-                async () => await _turnService.ChangeTurnStateAsync(turn.IdTurn, "EstadoFalso"));
+            // FIX: Assert.ThrowsAsync necesita await para capturar excepciones async correctamente
+            Assert.That(
+                async () => await _turnService.ChangeTurnStateAsync(turn.IdTurn, "EstadoFalso"),
+                Throws.TypeOf<ArgumentException>());
         }
 
         [Test]
         public async Task ChangeTurnState_EstadoValido_ActualizaCorrectamente()
         {
             var client = await AgregarClienteAsync();
-            var turn = new Turn { Number = 1, State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now };
+            var turn = new Turn
+            {
+                Number = 1,
+                State = TurnState.Pendiente.ToString(),
+                ClientId = client.IdClient,
+                ServiceId = 1,
+                FechaHora = DateTime.Now
+            };
             _context.Turns.Add(turn);
             await _context.SaveChangesAsync();
 
@@ -314,7 +337,14 @@ namespace KairosWebAPI.Tests
         public async Task DeleteTurn_TurnoExiste_EliminaYRetornaTrue()
         {
             var client = await AgregarClienteAsync();
-            var turn = new Turn { Number = 1, State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now };
+            var turn = new Turn
+            {
+                Number = 1,
+                State = TurnState.Pendiente.ToString(),
+                ClientId = client.IdClient,
+                ServiceId = 1,
+                FechaHora = DateTime.Now
+            };
             _context.Turns.Add(turn);
             await _context.SaveChangesAsync();
 
