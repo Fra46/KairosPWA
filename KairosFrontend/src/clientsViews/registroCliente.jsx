@@ -7,7 +7,7 @@ import { clientService } from "../services/clientService"
 export default function RegistroCliente() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { documento, docType } = location.state || {}
+  const { documento } = location.state || {}
 
   const [formData, setFormData] = useState({
     name: "",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { turnService } from "../services/turnService"
 import { serviceService } from "../services/serviceService"
 import { startConnection } from "../services/signalR"
@@ -21,7 +21,7 @@ export default function EmpleadoNextTurn() {
   // Helper para obtener número de documento con múltiples fallbacks
   const getDocument = (t) => {
     if (!t) return ""
-    const doc = (
+    return (
       t.document ||
       t.documentNumber ||
       t.documento ||
@@ -31,8 +31,6 @@ export default function EmpleadoNextTurn() {
       t.identification ||
       ""
     )
-    console.log("getDocument result:", doc, "from turn:", t)
-    return doc
   }
 
   // Load available services
@@ -57,7 +55,6 @@ export default function EmpleadoNextTurn() {
     try {
       const connection = await startConnection()
       connection.on("TurnUpdated", () => {
-        console.log("SignalR: TurnUpdated recibido")
         // Aquí podrías agregar algún refresco si luego lo necesitas
       })
     } catch (err) {
@@ -81,8 +78,10 @@ export default function EmpleadoNextTurn() {
   }, [services]);
 
   // Generador de key para persistir llamados por usuario+servicio
-  const calledKey = () =>
-    `kairos_called_turns_${user?.id ?? "anon"}_${selectedService?.idService ?? "none"}`
+  const calledKey = useCallback(
+    () => `kairos_called_turns_${user?.id ?? "anon"}_${selectedService?.idService ?? "none"}`,
+    [user?.id, selectedService?.idService]
+  )
 
   // Cargar lista de turnos llamados desde localStorage cuando cambia servicio o user
   useEffect(() => {
@@ -98,7 +97,7 @@ export default function EmpleadoNextTurn() {
     } catch (e) {
       console.error("Error cargando turnos llamados:", e)
     }
-  }, [user, selectedService])
+  }, [calledKey, user, selectedService])
 
   // Cargar turno actual en atención para el empleado y servicio seleccionados
   useEffect(() => {
@@ -119,7 +118,11 @@ export default function EmpleadoNextTurn() {
             const id = response.idTurn ?? response.id ?? response._id ?? response.turnId
             if (!prev.find((t) => (t.idTurn ?? t.id ?? t._id ?? t.turnId) === id)) {
               const next = [response, ...prev]
-              try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+              try {
+                localStorage.setItem(calledKey(), JSON.stringify(next))
+              } catch (e) {
+                console.error("Error guardando turnos llamados:", e)
+              }
               return next
             }
             return prev
@@ -143,7 +146,7 @@ export default function EmpleadoNextTurn() {
     };
 
     fetchCurrentTurn();
-  }, [selectedService, user]);
+  }, [calledKey, selectedService, user]);
 
   const handleAdvance = async () => {
     if (!selectedService) {
@@ -177,7 +180,11 @@ export default function EmpleadoNextTurn() {
           return prev
         }
         const next = [response, ...prev]
-        try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+        try {
+          localStorage.setItem(calledKey(), JSON.stringify(next))
+        } catch (e) {
+          console.error("Error guardando turnos llamados:", e)
+        }
         return next
       })
       setInfo("Turno llamado correctamente.");
@@ -232,7 +239,11 @@ export default function EmpleadoNextTurn() {
           const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
           return id !== turnId
         })
-        try { localStorage.setItem(calledKey(), JSON.stringify(next)) } catch (e) {}
+        try {
+          localStorage.setItem(calledKey(), JSON.stringify(next))
+        } catch (e) {
+          console.error("Error guardando turnos llamados:", e)
+        }
         return next
       })
       setInfo("Turno marcado como atendido.");
@@ -256,7 +267,7 @@ export default function EmpleadoNextTurn() {
     } catch (e) {
       console.error("Error guardando turnos llamados:", e)
     }
-  }, [calledTurns])
+  }, [calledKey, calledTurns, selectedService, user])
 
   return (
     <div className="min-vh-100 bg-light py-5">

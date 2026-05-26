@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
 });
 
 // Autenticacion JWT
-var jwtkey = builder.Configuration["JwtSettings:Key"];
+var jwtkey = builder.Configuration["JwtSettings:Key"]!;
 
 builder.Services
     .AddAuthentication("Bearer")

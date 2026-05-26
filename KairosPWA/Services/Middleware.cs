@@ -33,10 +33,10 @@ namespace KairosPWA.Middleware
                                 ?? user?.FindFirst("id")?.Value
                                 ?? "anonymous";
 
-                string userName = user?.FindFirst(ClaimTypes.Name)?.Value
+                string? userName = user?.FindFirst(ClaimTypes.Name)?.Value
                                   ?? user?.FindFirst("username")?.Value;
 
-                string role = user?.FindFirst(ClaimTypes.Role)?.Value
+                string? role = user?.FindFirst(ClaimTypes.Role)?.Value
                               ?? user?.FindFirst("role")?.Value;
 
                 _logger.LogInformation(

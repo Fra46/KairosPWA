@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { authContext } from "./authContext"
+import { AuthContext } from "./authContext"
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -47,8 +47,8 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <authContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
       {children}
-    </authContext.Provider>
+    </AuthContext.Provider>
   )
 }

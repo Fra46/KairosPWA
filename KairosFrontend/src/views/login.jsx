@@ -8,7 +8,7 @@ import { useAuth } from "../context/useAuth"
 export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, login } = useAuth()
+  const { login } = useAuth()
 
   const [userName, setUserName] = useState("")
   const [password, setPassword] = useState("")
@@ -38,6 +38,7 @@ export default function Login() {
         navigate("/empleado/siguiente-turno", { replace: true })
       }
     } catch (err) {
+      console.error(err)
       setError("Credenciales inválidas.")
     } finally {
       setLoading(false)

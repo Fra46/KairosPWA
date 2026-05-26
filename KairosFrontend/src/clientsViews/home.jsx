@@ -1,11 +1,9 @@
 "use client"
 
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 export default function Home() {
   const navigate = useNavigate()
-  const [selectedDocType, setSelectedDocType] = useState("")
 
   const documentTypes = [
     {
@@ -136,7 +134,6 @@ export default function Home() {
   ]
 
   const handleSelectDocument = (docType) => {
-    setSelectedDocType(docType)
     navigate("/ingresar-documento", { state: { docType } })
   }
 

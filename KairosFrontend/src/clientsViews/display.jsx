@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useCallback, useEffect, useState, useRef } from "react"
 import { turnService } from "../services/turnService"
 import { startConnection } from "../services/signalR"
 
@@ -12,18 +12,7 @@ export default function Display() {
   const prevTurnIdsRef = useRef([])
   const hasMountedRef = useRef(false)
 
-  useEffect(() => {
-    loadTurns()
-    setupSignalR()
-
-    const timeInterval = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-
-    return () => clearInterval(timeInterval)
-  }, [])
-
-  const loadTurns = async () => {
+  const loadTurns = useCallback(async () => {
     try {
       // Trae todos los turnos y filtra los que están "EnAtencion"
       const data = await turnService.GetAll()
@@ -34,9 +23,9 @@ export default function Display() {
       console.error("Error cargando turnos (pantalla):", err)
       setTurns([])
     }
-  }
+  }, [])
 
-  const setupSignalR = async () => {
+  const setupSignalR = useCallback(async () => {
     try {
       const connection = await startConnection()
       connection.on("TurnUpdated", () => {
@@ -45,7 +34,22 @@ export default function Display() {
     } catch (err) {
       console.error("Error en SignalR:", err)
     }
-  }
+  }, [loadTurns])
+
+  useEffect(() => {
+    const initialLoad = async () => {
+      await loadTurns()
+      await setupSignalR()
+    }
+
+    void initialLoad()
+
+    const timeInterval = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+
+    return () => clearInterval(timeInterval)
+  }, [loadTurns, setupSignalR])
 
   const formatTime = (date) => {
     return date.toLocaleTimeString("es-ES", {
@@ -113,8 +117,6 @@ export default function Display() {
 
   // turns ya contiene hasta 5 turnos "EnAtencion"
   const turnsInProgress = turns
-  const mainTurn = turnsInProgress[0] // principal (si existe)
-  const otherTurns = turnsInProgress.slice(1) // hasta 4 restantes
 
   return (
     <div className="min-vh-100" style={{ display: "flex", flexDirection: "column" }}>

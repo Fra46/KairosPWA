@@ -9,15 +9,15 @@ namespace KairosPWA.DTOs
         [Required(ErrorMessage = "El documento del cliente es obligatorio.")]
         [RegularExpression(@"^\d{7,10}$", ErrorMessage = "El documento del cliente debe tener entre 7 y 10 dígitos numéricos.")]
         [StringLength(10, MinimumLength = 6)]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         [Required(ErrorMessage = "El nombre del cliente es obligatorio.")]
         [StringLength(100, ErrorMessage = "El nombre del cliente no puede superar 100 caracteres.")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required(ErrorMessage = "El estado del cliente es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del cliente no puede superar 20 caracteres.")]
-        public string State { get; set; }
+        public string State { get; set; } = null!;
     }
 
 }

@@ -9,11 +9,11 @@ namespace KairosPWA.DTOs
         public int IdTurn { get; set; }
         public int Number { get; set; }
         public DateTime FechaHora { get; set; }
-        public string State { get; set; }
+        public string State { get; set; } = null!;
         public int ClientId { get; set; }
-        public string ClientName { get; set; }
+        public string ClientName { get; set; } = null!;
         public int ServiceId { get; set; }
-        public string ServiceName { get; set; }
+        public string ServiceName { get; set; } = null!;
     }
 
     public class TurnCreateDTO
@@ -23,7 +23,7 @@ namespace KairosPWA.DTOs
 
         [Required(ErrorMessage = "El estado del turno es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del turno no puede superar 20 caracteres.")]
-        public string State { get; set; }
+        public string State { get; set; } = null!;
 
         [Required(ErrorMessage = "El cliente es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El Id de cliente debe ser mayor que cero.")]

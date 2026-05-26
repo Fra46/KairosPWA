@@ -6,8 +6,8 @@ namespace KairosPWA.Models
     {
         [Key]
         public int IdClient { get; set; }
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string State { get; set; }
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public string State { get; set; } = null!;
     }
 }

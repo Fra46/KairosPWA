@@ -8,7 +8,7 @@ import { turnService } from "../services/turnService"
 export default function SeleccionarServicio() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { clientId, clientName, documento } = location.state || {}
+  const { clientName, documento } = location.state || {}
 
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)

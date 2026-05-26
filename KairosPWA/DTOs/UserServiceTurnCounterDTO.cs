@@ -3,10 +3,10 @@ namespace KairosPWA.DTOs
     public class UserServiceTurnCounterDTO
     {
         public int UserId { get; set; }
-        public string UserName { get; set; }
+        public string UserName { get; set; } = null!;
 
         public int ServiceId { get; set; }
-        public string ServiceName { get; set; }
+        public string ServiceName { get; set; } = null!;
 
         public int ContTurns { get; set; }
     }

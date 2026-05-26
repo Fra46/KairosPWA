@@ -8,10 +8,10 @@ namespace KairosPWA.Models
         public int IdUserServiceTurnCounter { get; set; }
 
         public int UserId { get; set; }
-        public User User { get; set; }
+        public User User { get; set; } = null!;
 
         public int ServiceId { get; set; }
-        public Service Service { get; set; }
+        public Service Service { get; set; } = null!;
 
         public int ContTurns { get; set; }
     }

@@ -6,10 +6,10 @@ namespace KairosPWA.Models
     {
         [Key]
         public int IdUser { get; set; }
-        public string UserName { get; set; }
-        public string Password { get; set; }
-        public string State { get; set; }
+        public string UserName { get; set; } = null!;
+        public string Password { get; set; } = null!;
+        public string State { get; set; } = null!;
         public int RolId { get; set; }
-        public Rol Rol { get; set; }
+        public Rol Rol { get; set; } = null!;
     }
 }
