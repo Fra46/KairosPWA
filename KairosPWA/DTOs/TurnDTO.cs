@@ -10,6 +10,7 @@ namespace KairosPWA.DTOs
         public int Number { get; set; }
         public DateTime FechaHora { get; set; }
         public string State { get; set; } = null!;
+        public string Priority { get; set; } = "Normal";
         public int ClientId { get; set; }
         public string ClientName { get; set; } = null!;
         public int ServiceId { get; set; }
@@ -32,5 +33,7 @@ namespace KairosPWA.DTOs
         [Required(ErrorMessage = "El servicio es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El Id de servicio debe ser mayor que cero.")]
         public int ServiceId { get; set; }
+
+        public string Priority { get; set; } = "Normal";
     }
 }

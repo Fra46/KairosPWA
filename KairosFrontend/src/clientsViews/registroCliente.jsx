@@ -12,6 +12,11 @@ export default function RegistroCliente() {
   const [formData, setFormData] = useState({
     name: "",
   })
+  const keyboardKeys = [
+    "Q","W","E","R","T","Y","U","I","O","P",
+    "A","S","D","F","G","H","J","K","L","Ñ",
+    "Z","X","C","V","B","N","M","Espacio","⌫",
+  ]
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -65,6 +70,21 @@ export default function RegistroCliente() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleKeyboardClick = (value) => {
+    setError("")
+    setFormData((prev) => {
+      if (value === "⌫") {
+        return { ...prev, name: prev.name.slice(0, -1) }
+      }
+
+      if (value === "Espacio") {
+        return { ...prev, name: `${prev.name} ` }
+      }
+
+      return { ...prev, name: `${prev.name}${value}` }
+    })
   }
 
   return (
@@ -149,6 +169,21 @@ export default function RegistroCliente() {
                     padding: "1rem 1.25rem",
                   }}
                 />
+              </div>
+
+              <div className="keyboard-grid mb-4" style={{ gap: "0.55rem" }}>
+                {keyboardKeys.map((key) => (
+                  <button
+                    type="button"
+                    key={key}
+                    className="btn btn-outline-secondary rounded-4"
+                    style={{ minHeight: 58, fontSize: 16, fontWeight: 600 }}
+                    onClick={() => handleKeyboardClick(key)}
+                    disabled={loading}
+                  >
+                    {key}
+                  </button>
+                ))}
               </div>
 
               <div className="row g-3">

@@ -5,5 +5,6 @@ namespace KairosPWA.DTOs
         public string ClientDocument { get; set; } = string.Empty;
         public string ClientName { get; set; } = string.Empty;
         public int ServiceId { get; set; }
+        public string Priority { get; set; } = "Normal";
     }
 }

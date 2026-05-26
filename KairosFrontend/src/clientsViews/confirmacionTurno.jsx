@@ -2,18 +2,25 @@
 
 import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
+import QRCode from "react-qr-code"
 
 export default function ConfirmacionTurno() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { turnNumber, serviceName, clientName, documento } = location.state || {}
+  const { turnNumber, serviceName, clientName, documento, serviceId } = location.state || {}
   const [countdown, setCountdown] = useState(15)
+  const [ticketUrl, setTicketUrl] = useState("")
 
   useEffect(() => {
     if (!turnNumber) {
       navigate("/")
       return
     }
+
+    const baseUrl = `${window.location.origin}/`
+    setTicketUrl(
+      `${baseUrl}?documento=${encodeURIComponent(documento)}&serviceId=${encodeURIComponent(serviceId)}`
+    )
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -164,6 +171,20 @@ export default function ConfirmacionTurno() {
 
                 {/* Nota pequeña */}
                 <p className="text-muted small mt-4 mb-0">Si necesita asistencia, consulte con el personal o pulse el botón de ayuda en pantalla.</p>
+                {ticketUrl && (
+                  <div className="mt-4 p-4 rounded-4" style={{ background: "rgba(247, 115, 22, 0.09)" }}>
+                    <p className="fw-semibold mb-3">Escanee para ver el estado de su turno</p>
+                    <div className="d-flex justify-content-center mb-3">
+                      <div style={{ background: "white", padding: "1rem", borderRadius: "1rem" }}>
+                        <QRCode value={ticketUrl} size={180} />
+                      </div>
+                    </div>
+                    <p className="small text-muted mb-0">También puede visitar:</p>
+                    <a href={ticketUrl} target="_blank" rel="noreferrer" className="d-block text-decoration-none fw-semibold">
+                      {ticketUrl}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>

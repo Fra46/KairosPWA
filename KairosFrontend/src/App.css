@@ -305,6 +305,26 @@ body {
 }
 
 .numpad-btn:hover,
+.keyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.keyboard-grid button {
+  min-height: 58px;
+  background: white;
+  border: 2px solid rgba(15, 23, 42, 0.08);
+  color: var(--kairos-gray-900);
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.keyboard-grid button:hover,
+.keyboard-grid button:focus {
+  border-color: var(--kairos-primary);
+  transform: translateY(-1px);
+  background-color: rgba(249, 115, 22, 0.08);
+}
 .btn-touch:hover {
   background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%);
   border-color: var(--kairos-primary);

@@ -14,6 +14,7 @@ export default function SeleccionarServicio() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [requesting, setRequesting] = useState(false)
+  const [selectedPriority, setSelectedPriority] = useState("Normal")
 
   useEffect(() => {
     loadServices()
@@ -89,6 +90,7 @@ export default function SeleccionarServicio() {
         clientDocument: documento,
         clientName: clientName,
         serviceId: serviceId,
+        priority: selectedPriority,
       })
 
       if (response) {
@@ -96,6 +98,7 @@ export default function SeleccionarServicio() {
         navigate("/confirmacion-turno", {
           state: {
             turnNumber: response.number,
+            serviceId,
             serviceName: serviceName,
             clientName: clientName,
             documento: documento,
@@ -167,6 +170,25 @@ export default function SeleccionarServicio() {
             </div>
 
             <div className="text-center mb-4">
+              <div className="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                {[
+                  { key: "Normal", label: "Normal" },
+                  { key: "Embarazada", label: "Embarazada" },
+                  { key: "Discapacitado", label: "Discapacitado" },
+                  { key: "Mayor", label: "Mayor" },
+                ].map((item) => (
+                  <button
+                    type="button"
+                    key={item.key}
+                    className={`btn ${selectedPriority === item.key ? "btn-primary" : "btn-outline-primary"} btn-sm rounded-pill`}
+                    onClick={() => setSelectedPriority(item.key)}
+                    disabled={requesting}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-muted mb-3">Selecciona la condición de prioridad para tu turno.</p>
               <div
                 className="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill"
                 style={{

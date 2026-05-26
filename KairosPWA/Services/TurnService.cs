@@ -112,6 +112,9 @@ namespace KairosPWA.Services
                 State = TurnState.Pendiente.ToString(),
                 ClientId = client.IdClient,
                 ServiceId = dto.ServiceId
+                , Priority = string.IsNullOrWhiteSpace(dto.Priority)
+                    ? TurnPriority.Normal.ToString()
+                    : dto.Priority
             };
 
             _context.Turns.Add(turnEntidad);
@@ -199,6 +202,17 @@ namespace KairosPWA.Services
             return _mapper.Map<List<TurnDTO>>(turns);
         }
 
+        private static int GetPriorityOrder(string priority)
+        {
+            return priority switch
+            {
+                nameof(TurnPriority.Embarazada) => 0,
+                nameof(TurnPriority.Discapacitado) => 1,
+                nameof(TurnPriority.Mayor) => 2,
+                _ => 3,
+            };
+        }
+
         public async Task<List<TurnDTO>> GetAllPendingTurnsAsync()
         {
             var pendingState = TurnState.Pendiente.ToString();
@@ -207,7 +221,8 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.State == pendingState)
-                .OrderBy(t => t.Number)
+                .OrderBy(t => GetPriorityOrder(t.Priority))
+                .ThenBy(t => t.Number)
                 .ToListAsync();
 
             return _mapper.Map<List<TurnDTO>>(turns);
@@ -219,7 +234,8 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.ServiceId == serviceId && t.State == TurnState.Pendiente.ToString())
-                .OrderBy(t => t.Number)
+                .OrderBy(t => GetPriorityOrder(t.Priority))
+                .ThenBy(t => t.Number)
                 .ToListAsync();
 
             return _mapper.Map<List<TurnDTO>>(turns);
@@ -278,7 +294,8 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.State == pendingState && t.ServiceId == serviceId)
-                .OrderBy(t => t.Number)
+                .OrderBy(t => GetPriorityOrder(t.Priority))
+                .ThenBy(t => t.Number)
                 .FirstOrDefaultAsync();
 
             if (turnToAttend == null)

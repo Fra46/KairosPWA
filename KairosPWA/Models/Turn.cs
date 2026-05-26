@@ -9,6 +9,7 @@ namespace KairosPWA.Models
         public int Number { get; set; }
         public DateTime FechaHora { get; set; }
         public string State { get; set; } = null!;
+        public string Priority { get; set; } = TurnPriority.Normal.ToString();
         public int ClientId { get; set; }
         public Client Client { get; set; } = null!;
         public int ServiceId { get; set; }
