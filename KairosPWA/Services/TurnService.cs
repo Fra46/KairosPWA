@@ -111,10 +111,8 @@ namespace KairosPWA.Services
                 FechaHora = DateTime.Now,
                 State = TurnState.Pendiente.ToString(),
                 ClientId = client.IdClient,
-                ServiceId = dto.ServiceId
-                , Priority = string.IsNullOrWhiteSpace(dto.Priority)
-                    ? TurnPriority.Normal.ToString()
-                    : dto.Priority
+                ServiceId = dto.ServiceId,
+                Priority = NormalizePriority(dto.Priority)
             };
 
             _context.Turns.Add(turnEntidad);
@@ -204,13 +202,28 @@ namespace KairosPWA.Services
 
         private static int GetPriorityOrder(string priority)
         {
-            return priority switch
+            if (Enum.TryParse<TurnPriority>(priority, ignoreCase: true, out var parsed))
             {
-                nameof(TurnPriority.Embarazada) => 0,
-                nameof(TurnPriority.Discapacitado) => 1,
-                nameof(TurnPriority.Mayor) => 2,
-                _ => 3,
-            };
+                return parsed switch
+                {
+                    TurnPriority.Embarazada => 0,
+                    TurnPriority.Discapacitado => 1,
+                    TurnPriority.Mayor => 2,
+                    _ => 3,
+                };
+            }
+
+            return 3;
+        }
+
+        private static string NormalizePriority(string? priority)
+        {
+            if (Enum.TryParse<TurnPriority>(priority, ignoreCase: true, out var parsed))
+            {
+                return parsed.ToString();
+            }
+
+            return TurnPriority.Normal.ToString();
         }
 
         public async Task<List<TurnDTO>> GetAllPendingTurnsAsync()

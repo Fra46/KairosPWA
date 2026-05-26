@@ -1,9 +1,45 @@
 "use client"
 
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { turnService } from "../services/turnService"
 
 export default function Home() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [statusLoading, setStatusLoading] = useState(false)
+  const [statusError, setStatusError] = useState("")
+  const [publicTurnStatus, setPublicTurnStatus] = useState(null)
+
+  const documentoQuery = searchParams.get("documento")
+  const serviceIdQuery = Number(searchParams.get("serviceId"))
+
+  useEffect(() => {
+    const shouldFetchStatus = documentoQuery && documentoQuery.trim() !== "" && serviceIdQuery > 0
+    if (!shouldFetchStatus) {
+      setPublicTurnStatus(null)
+      setStatusError("")
+      return
+    }
+
+    setStatusLoading(true)
+    setStatusError("")
+    setPublicTurnStatus(null)
+
+    turnService
+      .GetPublicStatus(documentoQuery, serviceIdQuery)
+      .then((response) => {
+        setPublicTurnStatus(response)
+        if (!response) {
+          setStatusError("No se encontró un turno pendiente para este documento y servicio.")
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        setStatusError("No se pudo cargar el estado del turno. Intente nuevamente más tarde.")
+      })
+      .finally(() => setStatusLoading(false))
+  }, [documentoQuery, serviceIdQuery])
 
   const documentTypes = [
     {
@@ -161,6 +197,35 @@ export default function Home() {
               </div>
               <h2 className="kairos-logo-small mb-2">Por favor, elija el tipo de documento</h2>
             </div>
+
+            {documentoQuery && serviceIdQuery > 0 && (
+              <div className="mb-4">
+                <div className="card turn-card p-4 text-start">
+                  <div className="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                    <div>
+                      <p className="text-muted small mb-2">Estado de turno consultado por QR</p>
+                      {statusLoading ? (
+                        <p className="fw-semibold mb-0">Cargando estado...</p>
+                      ) : publicTurnStatus ? (
+                        <>
+                          <p className="fw-semibold mb-1">Turno {publicTurnStatus.number} – {publicTurnStatus.serviceName}</p>
+                          <p className="mb-0">Estado: <strong>{publicTurnStatus.state}</strong></p>
+                        </>
+                      ) : (
+                        <p className="fw-semibold mb-0 text-danger">{statusError || "No hay turno pendiente."}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => navigate("/")}
+                    >
+                      Volver a Inicio
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="row g-3 mb-4">
               {documentTypes.map((doc) => (

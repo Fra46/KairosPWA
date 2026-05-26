@@ -1,4 +1,5 @@
 ﻿    using System.ComponentModel.DataAnnotations;
+    using KairosPWA.Enums;
 
 namespace KairosPWA.Models
 {

@@ -102,6 +102,7 @@ export default function SeleccionarServicio() {
             serviceName: serviceName,
             clientName: clientName,
             documento: documento,
+            priority: selectedPriority,
           },
         })
       }

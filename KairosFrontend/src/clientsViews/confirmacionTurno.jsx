@@ -7,7 +7,7 @@ import QRCode from "react-qr-code"
 export default function ConfirmacionTurno() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { turnNumber, serviceName, clientName, documento, serviceId } = location.state || {}
+  const { turnNumber, serviceName, clientName, documento, serviceId, priority } = location.state || {}
   const [countdown, setCountdown] = useState(15)
   const [ticketUrl, setTicketUrl] = useState("")
 
@@ -17,10 +17,12 @@ export default function ConfirmacionTurno() {
       return
     }
 
-    const baseUrl = `${window.location.origin}/`
-    setTicketUrl(
-      `${baseUrl}?documento=${encodeURIComponent(documento)}&serviceId=${encodeURIComponent(serviceId)}`
-    )
+    if (documento && serviceId) {
+      const baseUrl = `${window.location.origin}/`
+      setTicketUrl(
+        `${baseUrl}?documento=${encodeURIComponent(documento)}&serviceId=${encodeURIComponent(serviceId)}`
+      )
+    }
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -34,7 +36,7 @@ export default function ConfirmacionTurno() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [turnNumber, navigate])
+  }, [turnNumber, documento, serviceId, navigate])
 
   if (!turnNumber) return null
 
@@ -80,7 +82,7 @@ export default function ConfirmacionTurno() {
 
                 {/* Detalles compactos */}
                 <div className="row g-3 mb-4">
-                  <div className="col-12 col-md-4">
+                  <div className="col-12 col-md-3">
                     <div className="card turn-card text-start">
                       <div className="turn-card-body">
                         <p className="text-muted small mb-1">Cliente</p>
@@ -89,7 +91,7 @@ export default function ConfirmacionTurno() {
                     </div>
                   </div>
 
-                  <div className="col-12 col-md-4">
+                  <div className="col-12 col-md-3">
                     <div className="card turn-card text-start">
                       <div className="turn-card-body">
                         <p className="text-muted small mb-1">Documento</p>
@@ -98,7 +100,16 @@ export default function ConfirmacionTurno() {
                     </div>
                   </div>
 
-                  <div className="col-12 col-md-4">
+                  <div className="col-12 col-md-3">
+                    <div className="card turn-card text-start">
+                      <div className="turn-card-body">
+                        <p className="text-muted small mb-1">Prioridad</p>
+                        <p className="fw-semibold mb-0">{priority || "Normal"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-12 col-md-3">
                     <div className="card turn-card text-start">
                       <div className="turn-card-body">
                         <p className="text-muted small mb-1">Tiempo estimado</p>

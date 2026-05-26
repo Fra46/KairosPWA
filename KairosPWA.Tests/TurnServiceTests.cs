@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using System.Linq;
 
 namespace KairosWebAPI.Tests
 {
@@ -30,6 +31,12 @@ namespace KairosWebAPI.Tests
             _context = new ConnectionContext(options);
 
             _mapperMock = new Mock<IMapper>();
+            _mapperMock
+                .Setup(m => m.Map<List<TurnDTO>>(It.IsAny<object>()))
+                .Returns((object source) => ((IEnumerable<Turn>)source)
+                    .Select(t => new TurnDTO { Number = t.Number, Priority = t.Priority, State = t.State, ClientId = t.ClientId, ServiceId = t.ServiceId })
+                    .ToList());
+
             _userServiceMock = new Mock<IUserService>();
 
             var clientProxyMock = new Mock<IClientProxy>();
@@ -188,6 +195,83 @@ namespace KairosWebAPI.Tests
             var result = await _turnService.CreatePublicTurnAsync(dto);
 
             Assert.That(result.Number, Is.EqualTo(6));
+        }
+
+        [Test]
+        public async Task CreatePublicTurnAsync_PriorityAssigned_CreaTurnoConPrioridad()
+        {
+            await AgregarServicioAsync(1);
+
+            _mapperMock
+                .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, Priority = t.Priority });
+
+            var dto = new PublicTurnCreateDTO
+            {
+                ServiceId = 1,
+                ClientDocument = "33333333",
+                ClientName = "Ana Gómez",
+                Priority = "Embarazada"
+            };
+
+            var result = await _turnService.CreatePublicTurnAsync(dto);
+
+            Assert.That(result.Priority, Is.EqualTo("Embarazada"));
+
+            var turnoEnBD = await _context.Turns.FirstOrDefaultAsync(t => t.Client.Id == "33333333" && t.ServiceId == 1);
+            Assert.That(turnoEnBD!.Priority, Is.EqualTo("Embarazada"));
+        }
+
+        [Test]
+        public async Task GetAllPendingTurnsAsync_OrdenPorPrioridadYNumero()
+        {
+            await AgregarServicioAsync(1);
+            var client = await AgregarClienteAsync("11111111");
+
+            _context.Turns.AddRange(
+                new Turn { Number = 1, Priority = "Normal", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 2, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 3, Priority = "Discapacitado", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 4, Priority = "Mayor", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 5, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now }
+            );
+            await _context.SaveChangesAsync();
+
+            _mapperMock
+                .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, Priority = t.Priority });
+
+            var result = await _turnService.GetAllPendingTurnsAsync();
+
+            Assert.That(result.Select(t => t.Priority), Is.EqualTo(new[] { "Embarazada", "Embarazada", "Discapacitado", "Mayor", "Normal" }));
+            Assert.That(result.Select(t => t.Number), Is.EqualTo(new[] { 2, 5, 3, 4, 1 }));
+        }
+
+        [Test]
+        public async Task AdvanceTurnByServiceAsync_SeleccionaTurnoConMayorPrioridad()
+        {
+            await AgregarServicioAsync(1);
+            var client = await AgregarClienteAsync("44444444");
+
+            _context.Turns.AddRange(
+                new Turn { Number = 10, Priority = "Normal", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 11, Priority = "Mayor", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 12, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now }
+            );
+            await _context.SaveChangesAsync();
+
+            _mapperMock
+                .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, Priority = t.Priority, State = t.State });
+
+            var result = await _turnService.AdvanceTurnByServiceAsync(1, 1);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result!.Priority, Is.EqualTo("Embarazada"));
+            Assert.That(result.State, Is.EqualTo(TurnState.EnAtencion.ToString()));
+
+            var turnInDb = await _context.Turns.FirstOrDefaultAsync(t => t.Number == 12 && t.ServiceId == 1);
+            Assert.That(turnInDb!.State, Is.EqualTo(TurnState.EnAtencion.ToString()));
         }
 
         // ─── CancelPublicTurnAsync ──────────────────────────────────
