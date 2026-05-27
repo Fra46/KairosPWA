@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using KairosPWA.DTOs;
 using KairosPWA.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KairosPWA.MappingProfiles
 {
+    [ExcludeFromCodeCoverage]
     public class TurnProfile : Profile
     {
         public TurnProfile()

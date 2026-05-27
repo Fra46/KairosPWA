@@ -15,7 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace KairosWebAPI.Tests
+namespace KairosPWA.Tests.Services
 {
     public class TurnServiceTests : IDisposable
     {

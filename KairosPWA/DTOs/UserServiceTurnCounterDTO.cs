@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace KairosPWA.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class UserServiceTurnCounterDTO
     {
         public int UserId { get; set; }

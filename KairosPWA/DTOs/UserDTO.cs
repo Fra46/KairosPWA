@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KairosPWA.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class UserDTO
     {
         public int IdUser { get; set; }
@@ -21,6 +23,7 @@ namespace KairosPWA.DTOs
         public string RolName { get; set; } = null!;
     }
 
+    [ExcludeFromCodeCoverage]
     public class UserCreateDTO
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio.")]

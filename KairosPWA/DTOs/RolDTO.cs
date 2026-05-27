@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KairosPWA.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class RolDTO
     {
         public int IdRol { get; set; }

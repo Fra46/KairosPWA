@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace KairosPWA.Middleware
 {
+    [ExcludeFromCodeCoverage]
     public class Middleware
     {
         private readonly RequestDelegate _next;

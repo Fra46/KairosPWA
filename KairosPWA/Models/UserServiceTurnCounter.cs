@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KairosPWA.Models
 {
+    [ExcludeFromCodeCoverage]
     public class UserServiceTurnCounter
     {
         [Key]

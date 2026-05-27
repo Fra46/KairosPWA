@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace KairosPWA.DTOs
 
 {
+    [ExcludeFromCodeCoverage]
     public class TurnDTO
     {
         public int IdTurn { get; set; }
@@ -17,6 +19,7 @@ namespace KairosPWA.DTOs
         public string ServiceName { get; set; } = null!;
     }
 
+    [ExcludeFromCodeCoverage]
     public class TurnCreateDTO
     {
         [Range(1, int.MaxValue, ErrorMessage = "El número de turno debe ser mayor que cero.")]

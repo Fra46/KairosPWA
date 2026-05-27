@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace KairosPWA.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class PublicTurnCreateDTO
     {
         public string ClientDocument { get; set; } = string.Empty;

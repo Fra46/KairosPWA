@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace KairosPWA.DTOs
 {
+    [ExcludeFromCodeCoverage]
     public class ServiceQueueSummaryDTO
     {
         public int ServiceId { get; set; }
