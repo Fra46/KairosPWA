@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Services
 {
-    public class TurnService
+    public class TurnService : ITurnService
     {
         private readonly ConnectionContext _context;
         private readonly IMapper _mapper;

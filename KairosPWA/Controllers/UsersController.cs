@@ -1,12 +1,8 @@
-﻿using AutoMapper;
-using KairosPWA.Data;
-using KairosPWA.DTOs;
+﻿using KairosPWA.DTOs;
 using KairosPWA.JWT;
-using KairosPWA.Models;
 using KairosPWA.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KairosPWA.Controllers
 {
@@ -14,10 +10,10 @@ namespace KairosPWA.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserService _userService;
-        private readonly JwtTokenGenerator _jwtTokenGenerator;
+        private readonly IUserService _userService;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public UsersController(UserService userService, JwtTokenGenerator jwtTokenGenerator)
+        public UsersController(IUserService userService, IJwtTokenGenerator jwtTokenGenerator)
         {
             _userService = userService;
             _jwtTokenGenerator = jwtTokenGenerator;

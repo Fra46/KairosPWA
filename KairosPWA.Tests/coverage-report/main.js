@@ -290,13 +290,13 @@ var assemblies = [
   {
     "name": "KairosPWA",
     "classes": [
-      { "name": "KairosPWA.Controllers.ClientsController", "rp": "KairosPWA_ClientsController.html", "cl": 0, "ucl": 40, "cal": 40, "tl": 95, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "KairosPWA.Controllers.RolsController", "rp": "KairosPWA_RolsController.html", "cl": 0, "ucl": 14, "cal": 14, "tl": 37, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "KairosPWA.Controllers.ServicesController", "rp": "KairosPWA_ServicesController.html", "cl": 0, "ucl": 67, "cal": 67, "tl": 127, "cb": 0, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "KairosPWA.Controllers.TurnsController", "rp": "KairosPWA_TurnsController.html", "cl": 0, "ucl": 118, "cal": 118, "tl": 232, "cb": 0, "tb": 62, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "KairosPWA.Controllers.UsersController", "rp": "KairosPWA_UsersController.html", "cl": 0, "ucl": 64, "cal": 64, "tl": 135, "cb": 0, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.Controllers.ClientsController", "rp": "KairosPWA_ClientsController.html", "cl": 40, "ucl": 0, "cal": 40, "tl": 95, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.Controllers.RolsController", "rp": "KairosPWA_RolsController.html", "cl": 14, "ucl": 0, "cal": 14, "tl": 37, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.Controllers.ServicesController", "rp": "KairosPWA_ServicesController.html", "cl": 67, "ucl": 0, "cal": 67, "tl": 127, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.Controllers.TurnsController", "rp": "KairosPWA_TurnsController.html", "cl": 118, "ucl": 0, "cal": 118, "tl": 226, "cb": 61, "tb": 62, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.Controllers.UsersController", "rp": "KairosPWA_UsersController.html", "cl": 64, "ucl": 0, "cal": 64, "tl": 131, "cb": 18, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Data.ConnectionContext", "rp": "KairosPWA_ConnectionContext.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 20, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "KairosPWA.Middleware.Middleware", "rp": "KairosPWA_Middleware.html", "cl": 0, "ucl": 31, "cal": 31, "tl": 56, "cb": 0, "tb": 46, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "KairosPWA.JWT.JwtTokenGenerator", "rp": "KairosPWA_JwtTokenGenerator.html", "cl": 39, "ucl": 0, "cal": 39, "tl": 65, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Models.Client", "rp": "KairosPWA_Client.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Models.Rol", "rp": "KairosPWA_Rol.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Models.Service", "rp": "KairosPWA_Service.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 13, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -307,7 +307,6 @@ var assemblies = [
       { "name": "KairosPWA.Services.ServiceService", "rp": "KairosPWA_ServiceService.html", "cl": 44, "ucl": 0, "cal": 44, "tl": 76, "cb": 8, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Services.TurnService", "rp": "KairosPWA_TurnService.html", "cl": 291, "ucl": 0, "cal": 291, "tl": 439, "cb": 49, "tb": 52, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "KairosPWA.Services.UserService", "rp": "KairosPWA_UserService.html", "cl": 113, "ucl": 0, "cal": 113, "tl": 177, "cb": 22, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Program", "rp": "KairosPWA_Program.html", "cl": 0, "ucl": 99, "cal": 99, "tl": 142, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 
@@ -322,46 +321,10 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "KairosPWA", "class": "KairosPWA.Middleware.Middleware", "reportPath": "KairosPWA_Middleware.html", "methodName": "InvokeAsync()", "methodShortName": "InvokeAsync()", "fileIndex": 0, "line": 21,
+    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.TurnsController", "reportPath": "KairosPWA_TurnsController.html", "methodName": "AdvanceTurnByService()", "methodShortName": "AdvanceTurnByService()", "fileIndex": 0, "line": 112,
     "metrics": [
-      { "value": 2162, "exceeded": true },
-      { "value": 46, "exceeded": true },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.TurnsController", "reportPath": "KairosPWA_TurnsController.html", "methodName": "AdvanceTurnByService()", "methodShortName": "AdvanceTurnByService()", "fileIndex": 0, "line": 113,
-    "metrics": [
-      { "value": 702, "exceeded": true },
+      { "value": 26, "exceeded": false },
       { "value": 26, "exceeded": true },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.TurnsController", "reportPath": "KairosPWA_TurnsController.html", "methodName": "CompleteCurrentTurn()", "methodShortName": "CompleteCurrentTurn()", "fileIndex": 0, "line": 164,
-    "metrics": [
-      { "value": 210, "exceeded": true },
-      { "value": 14, "exceeded": false },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.UsersController", "reportPath": "KairosPWA_UsersController.html", "methodName": "Login()", "methodShortName": "Login()", "fileIndex": 0, "line": 89,
-    "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.ServicesController", "reportPath": "KairosPWA_ServicesController.html", "methodName": "PutService()", "methodShortName": "PutService()", "fileIndex": 0, "line": 44,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "KairosPWA.Controllers.TurnsController", "reportPath": "KairosPWA_TurnsController.html", "methodName": "GetPublicTurnStatus()", "methodShortName": "GetPublicTurnStatus()", "fileIndex": 0, "line": 191,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
-  {
-    "assembly": "KairosPWA", "class": "Program", "reportPath": "KairosPWA_Program.html", "methodName": "\u003CMain\u003E$(System.String[])", "methodShortName": "\u003CMain\u003E$(...)", "fileIndex": 0, "line": 14,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
     ]},
 ];
 

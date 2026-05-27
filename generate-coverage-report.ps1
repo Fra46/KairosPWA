@@ -11,7 +11,7 @@ Write-Host "[1/3] Ejecutando tests y recolectando datos de cobertura..." -Foregr
 $dotnetArgs = @(
     'test',
     '.\KairosPWA.Tests\KairosPWA.Tests.csproj',
-    '--collect:XPlat Code Coverage',
+    '--collect:"XPlat Code Coverage"',
     '--results-directory',
     '.\KairosPWA.Tests\TestResults'
 )
@@ -49,7 +49,7 @@ if (-not (Test-Path $reportGeneratorPath)) {
     exit 1
 }
 
-& $reportGeneratorPath -reports:$coverageXml -targetdir:".\KairosPWA.Tests\coverage-report" -reporttypes:Html -filefilters:'+*;-*Migrations*'
+& $reportGeneratorPath -reports:$coverageXml -targetdir:".\KairosPWA.Tests\coverage-report" -reporttypes:Html -filefilters:'+*;-*Program.cs;-*Migrations*'
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: ReportGenerator fallo" -ForegroundColor Red

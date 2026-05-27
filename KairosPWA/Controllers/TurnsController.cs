@@ -11,10 +11,10 @@ namespace KairosPWA.Controllers
     [ApiController]
     public class TurnsController : ControllerBase
     {
-        private readonly TurnService _turnService;
-        private readonly UserService _userService;
+        private readonly ITurnService _turnService;
+        private readonly IUserService _userService;
 
-        public TurnsController(TurnService turnService, UserService userService)
+        public TurnsController(ITurnService turnService, IUserService userService)
         {
             _turnService = turnService;
             _userService = userService;
@@ -87,7 +87,6 @@ namespace KairosPWA.Controllers
         {
             if (serviceId.HasValue && serviceId.Value > 0)
             {
-                // Si algún día quieres filtrar por servicio
                 var byService = await _turnService.GetPendingTurnsByServiceAsync(serviceId.Value);
                 return Ok(byService);
             }
@@ -113,7 +112,6 @@ namespace KairosPWA.Controllers
         {
             int? userId = null;
 
-            // 1) Intentar claims como ya lo tienes
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
             {
@@ -136,7 +134,6 @@ namespace KairosPWA.Controllers
                 }
             }
 
-            // 2) Fallback: si sigue sin poder, usar el UserId que venga en el body
             if (userId == null && request != null && request.UserId > 0)
             {
                 userId = request.UserId;
@@ -164,12 +161,10 @@ namespace KairosPWA.Controllers
         {
             int? userId = null;
 
-            // Reutiliza tu lógica actual para sacar el userId de los claims...
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
                 userId = parsedId;
 
-            // Fallback: si no está en claims, usa el que venga en el body
             if (userId == null && request != null && request.UserId > 0)
                 userId = request.UserId;
 
@@ -194,7 +189,7 @@ namespace KairosPWA.Controllers
 
             var turn = await _turnService.GetPendingTurnForClientAsync(document, serviceId);
             if (turn == null)
-                return Ok(null); // sin turno pendiente
+                return Ok(null);
 
             return Ok(turn);
         }
@@ -211,7 +206,7 @@ namespace KairosPWA.Controllers
             return Ok(turns);
         }
 
-        // GET /api/turns/service/{serviceId}/current? userId = 123
+        // GET /api/turns/service/{serviceId}/current?clientId=123
         [HttpGet("service/{serviceId}/current")]
         public async Task<ActionResult<TurnDTO>> GetCurrentByService(int serviceId, [FromQuery] int clientId)
         {
@@ -227,6 +222,5 @@ namespace KairosPWA.Controllers
 
             return Ok(turn);
         }
-
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace KairosPWA.JWT
 {
-    public class JwtTokenGenerator
+    public class JwtTokenGenerator : IJwtTokenGenerator
     {
         private readonly IConfiguration _config;
 

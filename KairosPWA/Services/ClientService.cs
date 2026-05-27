@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KairosPWA.Services
 {
-    public class ClientService
+    public class ClientService : IClientService
     {
         private readonly ConnectionContext _context;
 

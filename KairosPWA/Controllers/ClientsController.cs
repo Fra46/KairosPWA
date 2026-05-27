@@ -9,9 +9,9 @@ namespace KairosPWA.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
-        private readonly ClientService _clientService;
+        private readonly IClientService _clientService;
 
-        public ClientsController(ClientService clientService)
+        public ClientsController(IClientService clientService)
         {
             _clientService = clientService;
         }

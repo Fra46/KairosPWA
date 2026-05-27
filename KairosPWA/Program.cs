@@ -31,6 +31,9 @@ builder.Services.AddAutoMapper(typeof(UserProfile), typeof(TurnProfile));
 // Add services to the container.
 builder.Services.AddScoped<JwtTokenGenerator>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ITurnService, TurnService>();
 builder.Services.AddScoped<IUserService>(sp => sp.GetRequiredService<UserService>());
 builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<ServiceService>();
