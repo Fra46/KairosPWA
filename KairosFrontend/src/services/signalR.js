@@ -6,8 +6,11 @@ let connection = null;
 export const startConnection = async () => {
     if (connection) return connection;
 
+    const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
+    const hubUrl = `${protocol}://${window.location.hostname}:7300/Hubs/NotificationsHub`;
+
     connection = new signalR.HubConnectionBuilder()
-        .withUrl(`http://${window.location.hostname}:7299/Hubs/NotificationsHub`)
+        .withUrl(hubUrl)
         .withAutomaticReconnect()
         .build();
 

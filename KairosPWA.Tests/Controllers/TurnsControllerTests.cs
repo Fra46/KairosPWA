@@ -312,10 +312,10 @@ namespace KairosPWA.Tests.Controllers
         public async Task GetCurrentByService_NotFound_ReturnsNotFound()
         {
             _turnServiceMock
-                .Setup(x => x.GetCurrentByServiceAsync(1, 1))
+                .Setup(x => x.GetCurrentTurnByServiceAsync(1))
                 .ReturnsAsync((TurnDTO?)null);
 
-            var result = await _controller.GetCurrentByService(1, 1);
+            var result = await _controller.GetCurrentByService(1);
 
             Assert.IsType<NotFoundObjectResult>(result.Result);
         }
@@ -326,10 +326,10 @@ namespace KairosPWA.Tests.Controllers
             var dto = new TurnDTO { Number = 99 };
 
             _turnServiceMock
-                .Setup(x => x.GetCurrentByServiceAsync(1, 1))
+                .Setup(x => x.GetCurrentTurnByServiceAsync(1))
                 .ReturnsAsync(dto);
 
-            var result = await _controller.GetCurrentByService(1, 1);
+            var result = await _controller.GetCurrentByService(1);
 
             var ok = Assert.IsType<OkObjectResult>(result.Result);
             var data = Assert.IsType<TurnDTO>(ok.Value);

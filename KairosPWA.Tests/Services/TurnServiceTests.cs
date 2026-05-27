@@ -533,7 +533,7 @@ namespace KairosPWA.Tests.Services
             Assert.NotEmpty(recent);
             Assert.Contains(recent, r => r.Number == 2);
 
-            var current = await _turnService.GetCurrentByServiceAsync(svc.IdService, client.IdClient);
+            var current = await _turnService.GetCurrentTurnByServiceAsync(svc.IdService);
             Assert.NotNull(current);
             Assert.Equal(TurnState.EnAtencion.ToString(), current!.State);
         }
@@ -589,7 +589,7 @@ namespace KairosPWA.Tests.Services
         [Fact]
         public async Task GetCurrentByService_NoEntity_ReturnsNull()
         {
-            var res = await _turnService.GetCurrentByServiceAsync(9999, 9999);
+            var res = await _turnService.GetCurrentTurnByServiceAsync(9999);
             Assert.Null(res);
         }
 

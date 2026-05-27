@@ -206,17 +206,17 @@ namespace KairosPWA.Controllers
             return Ok(turns);
         }
 
-        // GET /api/turns/service/{serviceId}/current?clientId=123
+        // GET api/turns/service/{serviceId}/current
         [HttpGet("service/{serviceId}/current")]
-        public async Task<ActionResult<TurnDTO>> GetCurrentByService(int serviceId, [FromQuery] int clientId)
+        public async Task<ActionResult<TurnDTO>> GetCurrentByService(int serviceId)
         {
-            var turn = await _turnService.GetCurrentByServiceAsync(serviceId, clientId);
+            var turn = await _turnService.GetCurrentTurnByServiceAsync(serviceId);
 
             if (turn == null)
             {
                 return NotFound(new
                 {
-                    message = "No hay turno en atención para este servicio y cliente."
+                    message = "No hay turno en atención para este servicio."
                 });
             }
 

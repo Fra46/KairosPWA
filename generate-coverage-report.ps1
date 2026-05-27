@@ -49,7 +49,7 @@ if (-not (Test-Path $reportGeneratorPath)) {
     exit 1
 }
 
-& $reportGeneratorPath -reports:$coverageXml -targetdir:".\KairosPWA.Tests\coverage-report" -reporttypes:Html -filefilters:'+*;-*Program.cs;-*Migrations*'
+& $reportGeneratorPath -reports:$coverageXml -targetdir:".\KairosPWA.Tests\coverage-report" -reporttypes:Html -filefilters:'+*;-*Program*;-*Migrations*' -classfilters:'+*;-*Program*;-*Migrations*'
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: ReportGenerator fallo" -ForegroundColor Red

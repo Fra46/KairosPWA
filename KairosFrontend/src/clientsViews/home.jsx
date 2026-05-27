@@ -231,7 +231,7 @@ export default function Home() {
               {documentTypes.map((doc) => (
                 <div key={doc.id} className="col-6 col-md-4">
                   <button
-                    className="numpad-btn w-100 d-flex flex-column align-items-center justify-content-center gap-2 py-4"
+                    className="numpad-btn doc-card w-100 d-flex flex-column align-items-center justify-content-center gap-2 py-4"
                     onClick={() => handleSelectDocument(doc.id)}
                     style={{ minHeight: "140px", fontSize: "0.9rem" }}
                   >

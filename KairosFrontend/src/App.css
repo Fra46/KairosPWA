@@ -285,7 +285,12 @@ body {
    ======================================== */
 
 .numpad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
   min-height: 75px;
+  padding: 1rem;
   font-size: 1.75rem;
   font-weight: 700;
   border-radius: var(--radius-lg);
@@ -295,6 +300,19 @@ body {
   transition: all var(--transition-fast);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
+  text-align: center;
+}
+
+.numpad-btn:hover {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: var(--kairos-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.12);
+}
+
+.numpad-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.18);
 }
 
 .numpad-btn .doc-icon svg,
@@ -304,10 +322,23 @@ body {
   color: var(--kairos-primary) !important;
 }
 
-.numpad-btn:hover,
+.doc-card {
+  background: #fff;
+}
+
+.doc-card:hover {
+  background: rgba(249, 115, 22, 0.1);
+}
+
+.doc-card:hover .doc-icon svg,
+.doc-card:hover .doc-icon svg * {
+  stroke: var(--kairos-primary-dark) !important;
+  color: var(--kairos-primary-dark) !important;
+}
+
 .keyboard-grid {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
 }
 
@@ -331,19 +362,6 @@ body {
   color: #fff;
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-}
-
-.numpad-btn:hover .doc-icon svg,
-.numpad-btn:hover .doc-icon svg * {
-  stroke: #fff !important;
-  color: #fff !important;
-}
-
-.numpad-btn:hover .doc-icon svg [fill="#fff"],
-.numpad-btn:hover .doc-icon svg [fill="white"],
-.numpad-btn:hover .doc-icon svg .fill-white {
-  fill: var(--kairos-primary) !important;
-  stroke: var(--kairos-primary) !important;
 }
 
 .numpad-btn.active svg,

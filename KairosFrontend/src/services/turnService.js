@@ -83,11 +83,9 @@ export const turnService = {
         return response.data;
     },
 
-    // Obtener turno actual en atención para un servicio y cliente
-    GetCurrent: async (serviceId, userId) => {
-        const response = await api.get(`/turns/service/${serviceId}/current`, {
-            params: { userId },
-        });
+    // Obtener turno actual en atención para un servicio
+    GetCurrent: async (serviceId) => {
+        const response = await api.get(`/turns/service/${serviceId}/current`);
         return response.data;
     }
 }
