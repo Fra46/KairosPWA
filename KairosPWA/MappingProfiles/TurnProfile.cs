@@ -12,6 +12,7 @@ namespace KairosPWA.MappingProfiles
         {
             CreateMap<Turn, TurnDTO>()
                 .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.Client.Name))
+                .ForMember(dest => dest.ClientDocument, opt => opt.MapFrom(src => src.Client.Id))
                 .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.Name));
             CreateMap<TurnDTO, Turn>()
                 .ForMember(dest => dest.Client, opt => opt.Ignore())

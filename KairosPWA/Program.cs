@@ -40,6 +40,12 @@ builder.Services.AddScoped<ServiceService>();
 builder.Services.AddScoped<TurnService>();
 builder.Services.AddScoped<ClientService>();
 
+// Firebase Admin service (verificar ID tokens desde frontend)
+builder.Services.AddSingleton<FirebaseAuthService>();
+
+// Firestore service (opcional, para guardar perfiles)
+builder.Services.AddSingleton<FirestoreService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -76,7 +82,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://192.168.5.151:3000")
+        policy.WithOrigins("http://localhost:3000", "http://192.168.0.4:3000")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -129,6 +135,9 @@ app.MapHealthChecks("/health");
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+
+// Middleware que intenta verificar tokens de Firebase y mapear claims
+app.UseMiddleware<KairosPWA.Middleware.FirebaseTokenMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

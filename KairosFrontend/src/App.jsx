@@ -8,6 +8,7 @@ import IngresarDocumento from './clientsViews/ingresarDocumento';
 import RegistroCliente from './clientsViews/registroCliente';
 import SeleccionarServicio from './clientsViews/seleccionarServicio';
 import ConfirmacionTurno from './clientsViews/confirmacionTurno';
+import TurnoDetalle from './clientsViews/turnoDetalle';
 import Display from './clientsViews/display';
 
 // Vistas de personal
@@ -33,6 +34,7 @@ function App() {
             <Route path="/registro-cliente" element={<RegistroCliente />} />
             <Route path="/seleccionar-servicio" element={<SeleccionarServicio />} />
             <Route path="/confirmacion-turno" element={<ConfirmacionTurno />} />
+            <Route path="/turno-detalle" element={<TurnoDetalle />} />
             <Route path="/pantalla" element={<Display />} />
 
             {/* Acceso personal */}
@@ -96,7 +98,7 @@ function App() {
 
       <footer className="bg-dark text-light py-3 mt-auto">
         <div className="container small text-center">
-          &copy; {new Date().getFullYear()} Kairos - Sistema de Gestion de Turnos
+          &copy; {new Date().getFullYear()} Kairos Banco - Sistema de Gestión de Turnos para Banco
         </div>
       </footer>
     </div>

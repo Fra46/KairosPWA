@@ -2,10 +2,12 @@
 
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/useAuth"
+import usePwaInstallPrompt from "../hooks/usePwaInstallPrompt"
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const { canInstall, promptInstall } = usePwaInstallPrompt()
 
   const handleLogout = () => {
     logout()
@@ -13,7 +15,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-kairos sticky-top shadow-sm">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-kairos sticky-top shadow-sm">
       <div className="container-fluid px-4">
         <Link className="navbar-brand kairos-logo d-flex align-items-center" to="/">
           <svg
@@ -30,34 +32,42 @@ export default function Navbar() {
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          <span className="fw-bold">KAIROS</span>
+          <span className="fw-bold">KAIROS BANCO</span>
         </Link>
 
-        <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto align-items-lg-center gap-2">
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link px-3" to="/">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="me-2"
-                >
-                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Inicio
-              </Link>
-            </li>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="me-2"
+              >
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Inicio
+            </Link>
+          </li>
 
-            <li className="nav-item">
+          <li className="nav-item">
               <Link className="nav-link px-3" to="/pantalla">
                 <svg
                   width="18"
@@ -75,6 +85,31 @@ export default function Navbar() {
                 Pantalla
               </Link>
             </li>
+
+            {canInstall && (
+              <li className="nav-item">
+                <button
+                  type="button"
+                  className="btn btn-outline-light btn-sm rounded-pill px-4 d-flex align-items-center"
+                  onClick={promptInstall}
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="me-2"
+                  >
+                    <path d="M12 5v10"></path>
+                    <polyline points="8 11 12 15 16 11"></polyline>
+                    <path d="M20 19H4"></path>
+                  </svg>
+                  Instalar App
+                </button>
+              </li>
+            )}
 
             {!user && (
               <li className="nav-item">

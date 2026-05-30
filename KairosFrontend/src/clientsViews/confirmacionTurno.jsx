@@ -7,7 +7,7 @@ import QRCode from "react-qr-code"
 export default function ConfirmacionTurno() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { turnNumber, serviceName, clientName, documento, serviceId, priority } = location.state || {}
+  const { turnNumber, serviceName, clientName, documento, serviceId, priority, docType } = location.state || {}
   const [countdown, setCountdown] = useState(15)
   const [ticketUrl, setTicketUrl] = useState("")
 
@@ -18,9 +18,9 @@ export default function ConfirmacionTurno() {
     }
 
     if (documento && serviceId) {
-      const baseUrl = `${window.location.origin}/`
+      const baseUrl = `${window.location.origin}`
       setTicketUrl(
-        `${baseUrl}?documento=${encodeURIComponent(documento)}&serviceId=${encodeURIComponent(serviceId)}`
+        `${baseUrl}/turno-detalle?documento=${encodeURIComponent(documento)}&serviceId=${encodeURIComponent(serviceId)}`
       )
     }
 
@@ -66,6 +66,7 @@ export default function ConfirmacionTurno() {
                   </div>
 
                   <h1 className="kairos-logo-small mb-1">¡Turno Confirmado!</h1>
+                  <p className="text-muted mb-1">Banco - gestión de turnos</p>
                   <p className="text-muted mb-0">Se ha generado tu turno correctamente</p>
                 </div>
 
@@ -96,6 +97,15 @@ export default function ConfirmacionTurno() {
                       <div className="turn-card-body">
                         <p className="text-muted small mb-1">Documento</p>
                         <p className="fw-semibold mb-0">{documento}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-12 col-md-3">
+                    <div className="card turn-card text-start">
+                      <div className="turn-card-body">
+                        <p className="text-muted small mb-1">Tipo de documento</p>
+                        <p className="fw-semibold mb-0">{docType?.replace(/_/g, " ") || "Cédula"}</p>
                       </div>
                     </div>
                   </div>

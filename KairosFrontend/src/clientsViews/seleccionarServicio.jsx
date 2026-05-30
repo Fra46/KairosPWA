@@ -8,7 +8,7 @@ import { turnService } from "../services/turnService"
 export default function SeleccionarServicio() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { clientName, documento } = location.state || {}
+  const { clientName, documento, docType } = location.state || {}
 
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -91,6 +91,7 @@ export default function SeleccionarServicio() {
         clientName: clientName,
         serviceId: serviceId,
         priority: selectedPriority,
+        clientDocumentType: docType || "cedula"
       })
 
       if (response) {
@@ -103,6 +104,7 @@ export default function SeleccionarServicio() {
             clientName: clientName,
             documento: documento,
             priority: selectedPriority,
+            docType: docType || "cedula",
           },
         })
       }

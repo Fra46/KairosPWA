@@ -21,16 +21,69 @@ export default function EmpleadoNextTurn() {
   // Helper para obtener número de documento con múltiples fallbacks
   const getDocument = (t) => {
     if (!t) return ""
-    return (
-      t.document ||
-      t.documentNumber ||
-      t.documento ||
-      t.dni ||
-      t.cedula ||
-      t.clientDocument ||
-      t.identification ||
-      ""
-    )
+
+    // chequea propiedades comunes en diferentes formas (camelCase / PascalCase)
+    const candidates = [
+      t.clientDocument,
+      t.ClientDocument,
+      t.document,
+      t.documentNumber,
+      t.documento,
+      t.dni,
+      t.cedula,
+      t.clientDocumentNumber,
+      t.identification
+    ]
+
+    for (const c of candidates) {
+      if (c) return String(c)
+    }
+
+    // si viene el objeto cliente anidado
+    if (t.client) {
+      // posibles nombres: id, Id, document, Document
+      if (t.client.id) return String(t.client.id)
+      if (t.client.Id) return String(t.client.Id)
+      if (t.client.document) return String(t.client.document)
+      if (t.client.Document) return String(t.client.Document)
+    }
+
+    return ""
+  }
+
+  // Seleccionar un turno desde la lista: intentar traer la versión más actual desde API
+  const selectCalledTurn = async (t) => {
+    const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
+    if (!id) {
+      setCurrentTurn(t)
+      setInfo("Turno seleccionado desde la lista local.")
+      setError("")
+      return
+    }
+
+    try {
+      const fresh = await turnService.GetById(id)
+      setCurrentTurn(fresh)
+      setInfo("Turno seleccionado (versión actualizada).")
+      setError("")
+    } catch (e) {
+      // fallback a versión local si falla la petición
+      console.error("No se pudo obtener turno desde API:", e)
+      setCurrentTurn(t)
+      setInfo("Turno seleccionado desde la lista local (API inaccesible).")
+      setError("")
+    }
+  }
+
+  const formatDate = (d) => {
+    if (!d) return ""
+    try {
+      const date = new Date(d)
+      if (isNaN(date.getTime())) return String(d)
+      return date.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+    } catch (e) {
+      return String(d)
+    }
   }
 
   // Load available services
@@ -78,9 +131,11 @@ export default function EmpleadoNextTurn() {
   }, [services]);
 
   // Generador de key para persistir llamados por usuario+servicio
+  const userId = user?.id ?? user?.idUser
+
   const calledKey = useCallback(
-    () => `kairos_called_turns_${user?.id ?? "anon"}_${selectedService?.idService ?? "none"}`,
-    [user?.id, selectedService?.idService]
+    () => `kairos_called_turns_${userId ?? "anon"}_${selectedService?.idService ?? "none"}`,
+    [userId, selectedService?.idService]
   )
 
   // Cargar lista de turnos llamados desde localStorage cuando cambia servicio o user
@@ -92,7 +147,40 @@ export default function EmpleadoNextTurn() {
     try {
       const raw = localStorage.getItem(calledKey())
       if (raw) {
-        setCalledTurns(JSON.parse(raw))
+        const parsed = JSON.parse(raw)
+        setCalledTurns(parsed)
+        // refresh entries from API in background to fill missing data (clientDocument etc.)
+        ;(async () => {
+          try {
+            const needs = parsed.filter((t) => {
+              const doc = getDocument(t)
+              const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
+              return (!doc && id)
+            })
+            if (!needs.length) return
+
+            const results = await Promise.allSettled(needs.map(async (t) => {
+              const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
+              try {
+                const fresh = await turnService.GetById(id)
+                return fresh
+              } catch (e) {
+                return t
+              }
+            }))
+
+            const updated = parsed.map((orig) => {
+              const id = orig.idTurn ?? orig.id ?? orig._id ?? orig.turnId
+              const found = results.find(r => r.status === 'fulfilled' && (r.value?.idTurn ?? r.value?.id ?? r.value?._id ?? r.value?.turnId) === id)
+              return found && found.status === 'fulfilled' && found.value ? found.value : orig
+            })
+
+            setCalledTurns(updated)
+            try { localStorage.setItem(calledKey(), JSON.stringify(updated)) } catch (e) { }
+          } catch (e) {
+            console.error('Error refrescando turnos llamados:', e)
+          }
+        })()
       }
     } catch (e) {
       console.error("Error cargando turnos llamados:", e)
@@ -102,14 +190,13 @@ export default function EmpleadoNextTurn() {
   // Cargar turno actual en atención para el empleado y servicio seleccionados
   useEffect(() => {
     const fetchCurrentTurn = async () => {
-      if (!selectedService || !user?.id) return;
+      if (!selectedService || !userId) return;
 
       try {
         setLoading(true);
         setError("");
         const response = await turnService.GetCurrent(
-          selectedService.idService,
-          user.id
+          selectedService.idService
         );
         setCurrentTurn(response);
         // si viene un turno actual, asegurarse que esté también en la lista local
@@ -161,7 +248,7 @@ export default function EmpleadoNextTurn() {
     try {
       const response = await turnService.AdvanceByService(
         selectedService.idService,
-        user.id
+        userId
       );
 
       if (response?.message) {
@@ -191,7 +278,10 @@ export default function EmpleadoNextTurn() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || "Error al avanzar turno."
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Error al avanzar turno."
       );
     } finally {
       setLoading(false);
@@ -222,7 +312,7 @@ export default function EmpleadoNextTurn() {
       } else {
         response = await turnService.CompleteCurrent(
           selectedService.idService,
-          user.id
+          userId
         );
       }
 
@@ -250,7 +340,9 @@ export default function EmpleadoNextTurn() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message ||
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
         "Error al marcar el turno como atendido."
       );
     } finally {
@@ -398,18 +490,14 @@ export default function EmpleadoNextTurn() {
                   <div className="mt-4">
                     <label className="form-label fw-semibold">Turnos llamados</label>
                     <div className="list-group">
-                      {calledTurns.map((t) => {
+                          {calledTurns.map((t) => {
                         const id = t.idTurn ?? t.id ?? t._id ?? t.turnId
                         return (
                           <button
                             key={id}
                             type="button"
-                            className={"list-group-item list-group-item-action d-flex justify-content-between align-items-center " + ( (currentTurn && ((currentTurn.idTurn ?? currentTurn.id ?? currentTurn._id ?? currentTurn.turnId) === id)) ? "active" : "" )}
-                            onClick={() => {
-                              setCurrentTurn(t)
-                              setInfo("Turno seleccionado desde la lista local.")
-                              setError("")
-                            }}
+                                className={"list-group-item list-group-item-action d-flex justify-content-between align-items-center " + ( (currentTurn && ((currentTurn.idTurn ?? currentTurn.id ?? currentTurn._id ?? currentTurn.turnId) === id)) ? "active" : "" )}
+                                onClick={() => selectCalledTurn(t)}
                           >
                             <div>
                               <strong className="me-2">#{t.number}</strong>
@@ -513,87 +601,102 @@ export default function EmpleadoNextTurn() {
                         <div className="row g-3">
                           <div className="col-12">
                             <div className="info-card">
-                              <div className="icon-circle bg-primary bg-opacity-10 mb-3">
-                                <svg
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  className="text-primary"
-                                >
-                                  <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
-                                  <path d="M4 21v-2a4 4 0 0 1 3-3.87"></path>
-                                  <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
+                              <div className="d-flex align-items-center mb-3 px-3 py-2 rounded bg-primary text-white">
+                                <div className="me-3">
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="text-white"
+                                  >
+                                    <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M4 21v-2a4 4 0 0 1 3-3.87"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                  </svg>
+                                </div>
+                                <span className="fw-semibold">Cliente</span>
                               </div>
-                              <p className="text-muted small mb-1">Cliente</p>
                               <p className="fw-bold mb-0 fs-5">{currentTurn.clientName}</p>
+                              {((currentTurn.priority || currentTurn.Priority) && (
+                                <small className="d-block mt-2">Tipo: <span className="fw-semibold">{currentTurn.priority ?? currentTurn.Priority}</span></small>
+                              ))}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="info-card">
-                              <div className="icon-circle bg-success bg-opacity-10 mb-3">
-                                <svg
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  className="text-success"
-                                >
-                                  <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-                                  <line x1="3" y1="10" x2="21" y2="10"></line>
-                                </svg>
+                              <div className="d-flex align-items-center mb-3 px-3 py-2 rounded bg-success text-white">
+                                <div className="me-3">
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="text-white"
+                                  >
+                                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                  </svg>
+                                </div>
+                                <span className="fw-semibold">Documento</span>
                               </div>
-                              <p className="text-muted small mb-1">Documento</p>
                               <p className="fw-bold mb-0">{getDocument(currentTurn) || <span className="text-muted">No disponible</span>}</p>
+                              {/* Mostrar fecha/hora si está disponible */}
+                              {((currentTurn.fechaHora || currentTurn.FechaHora || currentTurn.date || currentTurn.fecha) && (
+                                <small className="d-block text-muted">{formatDate(currentTurn.fechaHora ?? currentTurn.FechaHora ?? currentTurn.date ?? currentTurn.fecha)}</small>
+                              ))}
                             </div>
                           </div>
 
                           <div className="col-md-6">
                             <div className="info-card">
-                              <div className="icon-circle bg-info bg-opacity-10 mb-3">
-                                <svg
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  className="text-info"
-                                >
-                                  <path d="M4 6h16"></path>
-                                  <path d="M4 10h16"></path>
-                                  <path d="M4 14h16"></path>
-                                  <path d="M4 18h16"></path>
-                                </svg>
+                              <div className="d-flex align-items-center mb-3 px-3 py-2 rounded bg-info text-white">
+                                <div className="me-3">
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="text-white"
+                                  >
+                                    <path d="M4 6h16"></path>
+                                    <path d="M4 10h16"></path>
+                                    <path d="M4 14h16"></path>
+                                    <path d="M4 18h16"></path>
+                                  </svg>
+                                </div>
+                                <span className="fw-semibold">Servicio</span>
                               </div>
-                              <p className="text-muted small mb-1">Servicio</p>
                               <p className="fw-bold mb-0 fs-5">{currentTurn.serviceName}</p>
                             </div>
                           </div>
 
                           <div className="col-12">
                             <div className="info-card">
-                              <div className="icon-circle bg-warning bg-opacity-10 mb-3">
-                                <svg
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  className="text-warning"
-                                >
-                                  <circle cx="12" cy="12" r="10"></circle>
-                                  <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
+                              <div className="d-flex align-items-center mb-3 px-3 py-2 rounded bg-warning text-dark">
+                                <div className="me-3">
+                                  <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    className="text-dark"
+                                  >
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                  </svg>
+                                </div>
+                                <span className="fw-semibold">Estado</span>
                               </div>
-                              <p className="text-muted small mb-1">Estado</p>
                               <span className="badge bg-success fs-6">{currentTurn.state}</span>
                             </div>
                           </div>

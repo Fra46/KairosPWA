@@ -361,3 +361,28 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Firebase and sensitive credentials (NEVER COMMIT THESE)
+.env
+.env.local
+.env.*.local
+.env.development
+serviceAccountKey.json
+*-firebase-sa.json
+kairos-firebase-sa.json
+appsettings.Development.json
+appsettings.Production.json
+
+# NodeJS / Frontend
+node_modules/
+/.pnp
+.pnp.js
+dist/
+.vite/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

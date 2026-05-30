@@ -49,6 +49,7 @@ export default function IngresarDocumento() {
             clientId: response.idClient, // PK interno
             clientName: response.name,
             documento,                   // el documento digitado
+            docType,
           },
         })
       }

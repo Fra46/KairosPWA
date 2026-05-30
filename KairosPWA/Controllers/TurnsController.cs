@@ -121,6 +121,7 @@ namespace KairosPWA.Controllers
             if (userId == null)
             {
                 var userName =
+                    User.FindFirst(ClaimTypes.Email)?.Value ??
                     User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
                     User.FindFirst(ClaimTypes.Name)?.Value;
 
@@ -144,12 +145,19 @@ namespace KairosPWA.Controllers
                 return Unauthorized(new { message = "No se pudo determinar el usuario actual." });
             }
 
-            var nextTurn = await _turnService.AdvanceTurnByServiceAsync(serviceId, userId.Value);
+            try
+            {
+                var nextTurn = await _turnService.AdvanceTurnByServiceAsync(serviceId, userId.Value);
 
-            if (nextTurn == null)
-                return Ok(new { message = "No hay más turnos pendientes para este servicio." });
+                if (nextTurn == null)
+                    return Ok(new { message = "No hay más turnos pendientes para este servicio." });
 
-            return Ok(nextTurn);
+                return Ok(nextTurn);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error avanzando turno: " + ex.Message });
+            }
         }
 
         // POST api/turns/service/{serviceId}/complete
@@ -165,18 +173,41 @@ namespace KairosPWA.Controllers
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var parsedId))
                 userId = parsedId;
 
+            if (userId == null)
+            {
+                var userName = User.FindFirst(ClaimTypes.Email)?.Value ??
+                               User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+                               User.FindFirst(ClaimTypes.Name)?.Value;
+
+                if (!string.IsNullOrWhiteSpace(userName))
+                {
+                    var user = await _userService.GetUserByUserNameAsync(userName);
+                    if (user != null)
+                    {
+                        userId = user.IdUser;
+                    }
+                }
+            }
+
             if (userId == null && request != null && request.UserId > 0)
                 userId = request.UserId;
 
             if (userId == null)
                 return Unauthorized(new { message = "No se pudo determinar el usuario actual." });
 
-            var completed = await _turnService.CompleteCurrentTurnAsync(serviceId, userId.Value);
+            try
+            {
+                var completed = await _turnService.CompleteCurrentTurnAsync(serviceId, userId.Value);
 
-            if (completed == null)
-                return Ok(new { message = "No hay turno en atención para este servicio." });
+                if (completed == null)
+                    return Ok(new { message = "No hay turno en atención para este servicio." });
 
-            return Ok(completed);
+                return Ok(completed);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error marcando turno atendido: " + ex.Message });
+            }
         }
 
         // GET api/turns/public/status?document=123&serviceId=1
@@ -219,6 +250,18 @@ namespace KairosPWA.Controllers
                     message = "No hay turno en atención para este servicio."
                 });
             }
+
+            return Ok(turn);
+        }
+
+        // GET api/turns/{id}
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TurnDTO>> GetTurnById(int id)
+        {
+            var turn = await _turnService.GetTurnByIdAsync(id);
+            if (turn == null)
+                return NotFound(new { message = "Turno no encontrado." });
 
             return Ok(turn);
         }

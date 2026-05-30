@@ -16,5 +16,6 @@ namespace KairosPWA.Services
         Task<TurnDTO?> GetPendingTurnForClientAsync(string document, int serviceId);
         Task<List<TurnDTO>> GetRecentCalledTurnsAsync(int count = 20);
         Task<TurnDTO?> GetCurrentTurnByServiceAsync(int serviceId);
+        Task<TurnDTO?> GetTurnByIdAsync(int id);
     }
 }

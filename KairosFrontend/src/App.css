@@ -338,23 +338,54 @@ body {
 
 .keyboard-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
-.keyboard-grid button {
-  min-height: 58px;
+.keyboard-row {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.keyboard-row-full {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.keyboard-row-last {
+  grid-template-columns: repeat(13, minmax(0, 1fr));
+}
+
+.keyboard-button {
+  min-height: 68px;
+  padding: 0 0.8rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 1rem;
   background: white;
-  border: 2px solid rgba(15, 23, 42, 0.08);
+  border: 2px solid rgba(15, 23, 42, 0.12);
   color: var(--kairos-gray-900);
-  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.04);
 }
 
-.keyboard-grid button:hover,
-.keyboard-grid button:focus {
+.keyboard-button:hover,
+.keyboard-button:focus {
   border-color: var(--kairos-primary);
   transform: translateY(-1px);
   background-color: rgba(249, 115, 22, 0.08);
+}
+
+.keyboard-button.space-key {
+  grid-column: span 4;
+}
+
+.keyboard-button.backspace-key {
+  grid-column: span 2;
+}
+
+.keyboard-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 .btn-touch:hover {
   background: linear-gradient(135deg, var(--kairos-primary) 0%, var(--kairos-primary-light) 100%);

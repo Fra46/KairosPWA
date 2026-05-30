@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { userService } from "../services/userService"
 import { useAuth } from "../context/useAuth"
 
 export default function Login() {
@@ -21,18 +20,20 @@ export default function Login() {
     setError("")
 
     try {
-      const data = await userService.Login({
-        userName,
-        password,
-      })
+      const resp = await login(userName, password)
 
-      login(data)
+      // Intentamos obtener usuario / token retornado por el login (o fallback a localStorage)
+      let data = resp
+      if (!data || !data.user) {
+        const stored = localStorage.getItem('kairos_auth')
+        data = stored ? JSON.parse(stored) : {}
+      }
 
       const from = location.state?.from?.pathname
 
       if (from) {
         navigate(from, { replace: true })
-      } else if (data.user?.role === "Administrador") {
+      } else if (data.user?.rol?.name === "Administrador" || data.user?.role === "Administrador") {
         navigate("/admin/servicios", { replace: true })
       } else {
         navigate("/empleado/siguiente-turno", { replace: true })

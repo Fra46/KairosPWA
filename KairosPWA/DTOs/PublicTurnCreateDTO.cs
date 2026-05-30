@@ -9,5 +9,6 @@ namespace KairosPWA.DTOs
         public string ClientName { get; set; } = string.Empty;
         public int ServiceId { get; set; }
         public string Priority { get; set; } = "Normal";
+        public string ClientDocumentType { get; set; } = "cedula";
     }
 }

@@ -12,10 +12,12 @@ export default function RegistroCliente() {
   const [formData, setFormData] = useState({
     name: "",
   })
-  const keyboardKeys = [
-    "Q","W","E","R","T","Y","U","I","O","P",
-    "A","S","D","F","G","H","J","K","L","Ñ",
-    "Z","X","C","V","B","N","M","Espacio","⌫",
+
+  const keyboardRows = [
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"],
+    ["Z", "X", "C", "V", "B", "N", "M", "Espacio", "⌫"],
   ]
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -171,18 +173,30 @@ export default function RegistroCliente() {
                 />
               </div>
 
-              <div className="keyboard-grid mb-4" style={{ gap: "0.55rem" }}>
-                {keyboardKeys.map((key) => (
-                  <button
-                    type="button"
-                    key={key}
-                    className="btn btn-outline-secondary rounded-4"
-                    style={{ minHeight: 58, fontSize: 16, fontWeight: 600 }}
-                    onClick={() => handleKeyboardClick(key)}
-                    disabled={loading}
+              <div className="keyboard-grid mb-4">
+                {keyboardRows.map((row, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className={`keyboard-row ${rowIndex === 3 ? "keyboard-row-last" : "keyboard-row-full"}`}
                   >
-                    {key}
-                  </button>
+                    {row.map((key) => (
+                      <button
+                        type="button"
+                        key={key}
+                        className={`btn btn-outline-secondary keyboard-button ${
+                          key === "Espacio"
+                            ? "space-key"
+                            : key === "⌫"
+                            ? "backspace-key"
+                            : ""
+                        }`}
+                        onClick={() => handleKeyboardClick(key)}
+                        disabled={loading}
+                      >
+                        {key}
+                      </button>
+                    ))}
+                  </div>
                 ))}
               </div>
 

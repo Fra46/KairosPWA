@@ -14,6 +14,13 @@ export default function Home() {
   const documentoQuery = searchParams.get("documento")
   const serviceIdQuery = Number(searchParams.get("serviceId"))
 
+  const formatDocumentTypeLabel = (value) => {
+    if (!value) return ""
+    return String(value)
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
   useEffect(() => {
     const shouldFetchStatus = documentoQuery && documentoQuery.trim() !== "" && serviceIdQuery > 0
     if (!shouldFetchStatus) {
@@ -196,6 +203,7 @@ export default function Home() {
                 </svg>
               </div>
               <h2 className="kairos-logo-small mb-2">Por favor, elija el tipo de documento</h2>
+              <p className="text-muted mb-0">Sistema de turnos para Banco</p>
             </div>
 
             {documentoQuery && serviceIdQuery > 0 && (
@@ -210,6 +218,9 @@ export default function Home() {
                         <>
                           <p className="fw-semibold mb-1">Turno {publicTurnStatus.number} – {publicTurnStatus.serviceName}</p>
                           <p className="mb-0">Estado: <strong>{publicTurnStatus.state}</strong></p>
+                          {publicTurnStatus.clientDocumentType && (
+                            <p className="mb-0">Tipo de documento: <strong>{formatDocumentTypeLabel(publicTurnStatus.clientDocumentType)}</strong></p>
+                          )}
                         </>
                       ) : (
                         <p className="fw-semibold mb-0 text-danger">{statusError || "No hay turno pendiente."}</p>
