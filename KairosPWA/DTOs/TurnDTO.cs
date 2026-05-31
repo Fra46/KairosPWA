@@ -16,6 +16,7 @@ namespace KairosPWA.DTOs
         public int ClientId { get; set; }
         public string ClientName { get; set; } = null!;
         public string? ClientDocument { get; set; }
+        public string? ClientDocumentType { get; set; }
         public int ServiceId { get; set; }
         public string ServiceName { get; set; } = null!;
     }

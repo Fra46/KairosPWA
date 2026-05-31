@@ -10,6 +10,7 @@ import SeleccionarServicio from './clientsViews/seleccionarServicio';
 import ConfirmacionTurno from './clientsViews/confirmacionTurno';
 import TurnoDetalle from './clientsViews/turnoDetalle';
 import Display from './clientsViews/display';
+import PoliticaDatos from './clientsViews/politicaDatos';
 
 // Vistas de personal
 import Login from './views/login';
@@ -32,10 +33,21 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/ingresar-documento" element={<IngresarDocumento />} />
             <Route path="/registro-cliente" element={<RegistroCliente />} />
+            <Route path="/politica-datos" element={<PoliticaDatos />} />
             <Route path="/seleccionar-servicio" element={<SeleccionarServicio />} />
             <Route path="/confirmacion-turno" element={<ConfirmacionTurno />} />
             <Route path="/turno-detalle" element={<TurnoDetalle />} />
-            <Route path="/pantalla" element={<Display />} />
+            <Route path="/pantalla" element={<Navigate to="/pantalla/atencion" replace />} />
+            <Route path="/pantalla/atencion" element={<Display mode="atencion" />} />
+            <Route path="/pantalla/proximos" element={<Display mode="proximos" />} />
+
+            {/* Flujo kiosko (tablet/pantalla) */}
+            <Route path="/kiosko" element={<Navigate to="/kiosko/home" replace />} />
+            <Route path="/kiosko/home" element={<Home />} />
+            <Route path="/kiosko/ingresar-documento" element={<IngresarDocumento />} />
+            <Route path="/kiosko/registro-cliente" element={<RegistroCliente />} />
+            <Route path="/kiosko/seleccionar-servicio" element={<SeleccionarServicio />} />
+            <Route path="/kiosko/confirmacion-turno" element={<ConfirmacionTurno />} />
 
             {/* Acceso personal */}
             <Route path="/login" element={<Login />} />

@@ -8,6 +8,8 @@ export default function IngresarDocumento() {
   const navigate = useNavigate()
   const location = useLocation()
   const docType = location.state?.docType || "cedula"
+  const isKiosko = location.pathname.startsWith("/kiosko")
+  const basePath = isKiosko ? "/kiosko" : ""
 
   const [documento, setDocumento] = useState("")
   const [loading, setLoading] = useState(false)
@@ -44,7 +46,7 @@ export default function IngresarDocumento() {
 
       if (response) {
         // Cliente existe, ir a selección de servicio
-        navigate("/seleccionar-servicio", {
+        navigate(`${basePath}/seleccionar-servicio`, {
           state: {
             clientId: response.idClient, // PK interno
             clientName: response.name,
@@ -56,7 +58,7 @@ export default function IngresarDocumento() {
     } catch (err) {
       // Cliente no existe → ir a registro
       if (err.response?.status === 404) {
-        navigate("/registro-cliente", {
+        navigate(`${basePath}/registro-cliente`, {
           state: { documento, docType },
         })
       } else {
@@ -164,7 +166,7 @@ export default function IngresarDocumento() {
 
             <div className="row g-3">
               <div className="col-6">
-                <button className="btn btn-light btn-lg w-100 rounded-4" onClick={() => navigate("/")} disabled={loading}>
+                <button className="btn btn-light btn-lg w-100 rounded-4" onClick={() => navigate(`${basePath}/`)} disabled={loading}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M19 12H5M12 19l-7-7 7-7" />
                   </svg>

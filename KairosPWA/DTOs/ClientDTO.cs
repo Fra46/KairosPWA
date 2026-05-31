@@ -20,6 +20,9 @@ namespace KairosPWA.DTOs
         [Required(ErrorMessage = "El estado del cliente es obligatorio.")]
         [StringLength(20, ErrorMessage = "El estado del cliente no puede superar 20 caracteres.")]
         public string State { get; set; } = null!;
+
+        [StringLength(20, ErrorMessage = "El tipo de documento no puede superar 20 caracteres.")]
+        public string? DocumentType { get; set; }
     }
 
 }

@@ -9,6 +9,8 @@ export default function SeleccionarServicio() {
   const navigate = useNavigate()
   const location = useLocation()
   const { clientName, documento, docType } = location.state || {}
+  const isKiosko = location.pathname.startsWith("/kiosko")
+  const basePath = isKiosko ? "/kiosko" : ""
 
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -96,7 +98,7 @@ export default function SeleccionarServicio() {
 
       if (response) {
         // Turno creado, mostrar confirmación
-        navigate("/confirmacion-turno", {
+        navigate(`${basePath}/confirmacion-turno`, {
           state: {
             turnNumber: response.number,
             serviceId,
@@ -143,7 +145,7 @@ export default function SeleccionarServicio() {
     <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <div className="text-center mb-4">
-          <button className="btn btn-light btn-lg" onClick={() => navigate("/")} disabled={requesting}>
+          <button className="btn btn-light btn-lg" onClick={() => navigate(`${basePath}/`)} disabled={requesting}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>

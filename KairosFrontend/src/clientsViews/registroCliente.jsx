@@ -8,16 +8,18 @@ export default function RegistroCliente() {
   const navigate = useNavigate()
   const location = useLocation()
   const { documento } = location.state || {}
+  const isKiosko = location.pathname.startsWith("/kiosko")
+  const basePath = isKiosko ? "/kiosko" : ""
 
   const [formData, setFormData] = useState({
     name: "",
   })
 
   const keyboardRows = [
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
     ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
     ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"],
-    ["Z", "X", "C", "V", "B", "N", "M", "Espacio", "⌫"],
+    ["Z", "X", "C", "V", "B", "N", "M"],
+    ["Espacio", "⌫"],
   ]
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -43,6 +45,8 @@ export default function RegistroCliente() {
       return
     }
 
+    const docType = location.state?.docType || "cedula"
+
     setLoading(true)
     setError("")
 
@@ -55,11 +59,12 @@ export default function RegistroCliente() {
 
       if (response) {
         // Cliente registrado, ir a selección de servicio
-        navigate("/seleccionar-servicio", {
+        navigate(`${basePath}/seleccionar-servicio`, {
           state: {
             clientId: response.idClient,
             clientName: response.name,
             documento,
+            docType,
           },
         })
       }
@@ -177,13 +182,19 @@ export default function RegistroCliente() {
                 {keyboardRows.map((row, rowIndex) => (
                   <div
                     key={rowIndex}
-                    className={`keyboard-row ${rowIndex === 3 ? "keyboard-row-last" : "keyboard-row-full"}`}
+                    className={`keyboard-row keyboard-row-phone ${
+                      row.length === 10
+                        ? "keyboard-row-full"
+                        : row.length === 7
+                        ? "keyboard-row-three"
+                        : "keyboard-row-last"
+                    }`}
                   >
                     {row.map((key) => (
                       <button
                         type="button"
                         key={key}
-                        className={`btn btn-outline-secondary keyboard-button ${
+                        className={`numpad-btn keyboard-button ${
                           key === "Espacio"
                             ? "space-key"
                             : key === "⌫"
@@ -200,9 +211,30 @@ export default function RegistroCliente() {
                 ))}
               </div>
 
+              <div className="alert alert-info mb-4" role="alert">
+                <div className="d-flex align-items-start gap-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: "2px" }}>
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  <span>
+                    Al continuar, aceptas la{" "}
+                    <a
+                      href="/politica-datos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontWeight: 700, color: "var(--kairos-primary)" }}
+                    >
+                      autorización para el tratamiento de datos personales
+                    </a>
+                  </span>
+                </div>
+              </div>
+
               <div className="row g-3">
                 <div className="col-6 d-flex align-items-stretch">
-                  <button className="btn btn-light btn-lg w-100 h-100 rounded-4 d-flex align-items-center justify-content-center" onClick={() => navigate("/")} disabled={loading}>
+                  <button className="btn btn-light btn-lg w-100 h-100 rounded-4 d-flex align-items-center justify-content-center" onClick={() => navigate(`${basePath}/`)} disabled={loading}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>

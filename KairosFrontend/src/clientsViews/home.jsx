@@ -1,11 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { turnService } from "../services/turnService"
 
 export default function Home() {
+  const location = useLocation()
   const navigate = useNavigate()
+  const isKiosko = location.pathname.startsWith("/kiosko")
+  const basePath = isKiosko ? "/kiosko" : ""
   const [searchParams] = useSearchParams()
   const [statusLoading, setStatusLoading] = useState(false)
   const [statusError, setStatusError] = useState("")
@@ -177,11 +180,12 @@ export default function Home() {
   ]
 
   const handleSelectDocument = (docType) => {
-    navigate("/ingresar-documento", { state: { docType } })
+    navigate(`${basePath}/ingresar-documento`, { state: { docType } })
   }
 
   return (
     <div className="min-vh-100 d-flex align-items-center py-5" style={{ position: "relative" }}>
+
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
 
         <div className="card shadow-lg border-0 fade-in rounded-5" style={{ maxWidth: "900px", margin: "0 auto" }}>
@@ -205,6 +209,7 @@ export default function Home() {
               <h2 className="kairos-logo-small mb-2">Por favor, elija el tipo de documento</h2>
               <p className="text-muted mb-0">Sistema de turnos para Banco</p>
             </div>
+
 
             {documentoQuery && serviceIdQuery > 0 && (
               <div className="mb-4">

@@ -9,5 +9,6 @@ namespace KairosPWA.Models
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string State { get; set; } = null!;
+        public string? DocumentType { get; set; }
     }
 }

@@ -1,13 +1,16 @@
 "use client"
 
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { Link, NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/useAuth"
 import usePwaInstallPrompt from "../hooks/usePwaInstallPrompt"
+import KioskoAuthModal from "./KioskoAuthModal"
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { canInstall, promptInstall } = usePwaInstallPrompt()
+  const [showKioskoModal, setShowKioskoModal] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -17,23 +20,68 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark navbar-kairos sticky-top shadow-sm">
       <div className="container-fluid px-4">
-        <Link className="navbar-brand kairos-logo d-flex align-items-center" to="/">
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="me-2"
-          >
+        <div className="d-flex align-items-center">
+          <Link className="navbar-brand kairos-logo d-flex align-items-center" to="/">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="me-2"
+            >
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
           <span className="fw-bold">KAIROS BANCO</span>
         </Link>
+
+          {canInstall && (
+            <button
+              type="button"
+              className="btn btn-outline-light btn-sm rounded-pill px-4 d-none d-lg-inline-flex align-items-center ms-3"
+              onClick={promptInstall}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="me-2"
+              >
+                <path d="M12 5v10"></path>
+                <polyline points="8 11 12 15 16 11"></polyline>
+                <path d="M20 19H4"></path>
+              </svg>
+              Instalar App
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-warning btn-sm rounded-pill px-4 d-none d-md-inline-flex align-items-center ms-3"
+            onClick={() => setShowKioskoModal(true)}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="me-2"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="2" y1="20" x2="22" y2="20"></line>
+            </svg>
+            Modo kiosko
+          </button>
+        </div>
 
         <button
           className="navbar-toggler"
@@ -50,7 +98,11 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <Link className="nav-link px-3" to="/">
+              <NavLink
+              className={({ isActive }) => `nav-link px-3${isActive ? " active" : ""}`}
+              to="/"
+              end
+            >
               <svg
                 width="18"
                 height="18"
@@ -64,33 +116,41 @@ export default function Navbar() {
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
               Inicio
-            </Link>
+            </NavLink>
           </li>
 
-          <li className="nav-item">
-              <Link className="nav-link px-3" to="/pantalla">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="me-2"
-                >
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="8" y1="21" x2="16" y2="21"></line>
-                  <line x1="12" y1="17" x2="12" y2="21"></line>
-                </svg>
-                Pantalla
-              </Link>
-            </li>
+          <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="me-2"
+                  >
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                  Pantalla
+                </a>
+                <ul className="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                  <li>
+                    <NavLink className="dropdown-item" to="/pantalla/atencion">En atención</NavLink>
+                  </li>
+                  <li>
+                    <NavLink className="dropdown-item" to="/pantalla/proximos">Próximos</NavLink>
+                  </li>
+                </ul>
+              </li>
 
             {canInstall && (
-              <li className="nav-item">
+              <li className="nav-item d-lg-none">
                 <button
                   type="button"
-                  className="btn btn-outline-light btn-sm rounded-pill px-4 d-flex align-items-center"
+                  className="btn btn-outline-light btn-sm rounded-pill px-4 w-100 d-flex align-items-center justify-content-center mb-2"
                   onClick={promptInstall}
                 >
                   <svg
@@ -299,6 +359,7 @@ export default function Navbar() {
           </ul>
         </div>
       </div>
+      <KioskoAuthModal isOpen={showKioskoModal} onClose={() => setShowKioskoModal(false)} />
     </nav>
   )
 }

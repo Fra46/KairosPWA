@@ -23,7 +23,8 @@ namespace KairosPWA.Services
                 IdClient = c.IdClient,
                 Id = c.Id,
                 Name = c.Name,
-                State = c.State
+                State = c.State,
+                DocumentType = c.DocumentType
             }).ToList();
         }
 
@@ -37,7 +38,8 @@ namespace KairosPWA.Services
                 IdClient = client.IdClient,
                 Id = client.Id,
                 Name = client.Name,
-                State = client.State
+                State = client.State,
+                DocumentType = client.DocumentType
             };
         }
 
@@ -55,7 +57,8 @@ namespace KairosPWA.Services
                 IdClient = client.IdClient,
                 Id = client.Id,
                 Name = client.Name,
-                State = client.State
+                State = client.State,
+                DocumentType = client.DocumentType
             };
         }
 
@@ -77,7 +80,8 @@ namespace KairosPWA.Services
             {
                 Id = clientDto.Id,
                 Name = clientDto.Name,
-                State = clientDto.State
+                State = clientDto.State,
+                DocumentType = clientDto.DocumentType
             };
 
             _context.Clients.Add(client);
@@ -100,6 +104,11 @@ namespace KairosPWA.Services
                     throw new Exception("Estado de cliente inválido.");
 
                 client.State = stateEnum.ToString();
+            }
+
+            if (!string.IsNullOrWhiteSpace(clientDto.DocumentType))
+            {
+                client.DocumentType = clientDto.DocumentType;
             }
 
             await _context.SaveChangesAsync();

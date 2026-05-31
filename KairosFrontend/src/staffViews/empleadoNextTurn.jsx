@@ -646,6 +646,10 @@ export default function EmpleadoNextTurn() {
                                 <span className="fw-semibold">Documento</span>
                               </div>
                               <p className="fw-bold mb-0">{getDocument(currentTurn) || <span className="text-muted">No disponible</span>}</p>
+                              {/* Mostrar tipo de documento si está disponible */}
+                              {((currentTurn.clientDocumentType || currentTurn.ClientDocumentType) && (
+                                <small className="d-block">Tipo: <span className="fw-semibold">{currentTurn.clientDocumentType ?? currentTurn.ClientDocumentType}</span></small>
+                              ))}
                               {/* Mostrar fecha/hora si está disponible */}
                               {((currentTurn.fechaHora || currentTurn.FechaHora || currentTurn.date || currentTurn.fecha) && (
                                 <small className="d-block text-muted">{formatDate(currentTurn.fechaHora ?? currentTurn.FechaHora ?? currentTurn.date ?? currentTurn.fecha)}</small>
