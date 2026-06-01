@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { serviceService } from "../services/serviceService"
 import { turnService } from "../services/turnService"
+import { cryptoService } from "../services/cryptoService"
 
 export default function SeleccionarServicio() {
   const navigate = useNavigate()
@@ -86,18 +87,29 @@ export default function SeleccionarServicio() {
     setRequesting(true)
     setError("")
 
+    const publicTurnData = {
+      clientDocument: documento,
+      clientName: clientName,
+      serviceId: serviceId,
+      priority: selectedPriority,
+      clientDocumentType: docType || "cedula"
+    }
+
     try {
-      // Crear turno público usando documento + servicio
-      const response = await turnService.CreatePublic({
-        clientDocument: documento,
-        clientName: clientName,
-        serviceId: serviceId,
-        priority: selectedPriority,
-        clientDocumentType: docType || "cedula"
-      })
+      let response
+
+      if (window.crypto?.subtle) {
+        const publicKey = await cryptoService.GetPublicKey()
+        const encryptedPayload = await cryptoService.EncryptPublicTurnPayload(
+          publicKey,
+          JSON.stringify(publicTurnData)
+        )
+        response = await turnService.CreatePublicEncrypted(encryptedPayload)
+      } else {
+        response = await turnService.CreatePublic(publicTurnData)
+      }
 
       if (response) {
-        // Turno creado, mostrar confirmación
         navigate(`${basePath}/confirmacion-turno`, {
           state: {
             turnNumber: response.number,

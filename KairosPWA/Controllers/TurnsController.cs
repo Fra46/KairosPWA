@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace KairosPWA.Controllers
 {
@@ -13,11 +14,13 @@ namespace KairosPWA.Controllers
     {
         private readonly ITurnService _turnService;
         private readonly IUserService _userService;
+        private readonly IEncryptionService _encryptionService;
 
-        public TurnsController(ITurnService turnService, IUserService userService)
+        public TurnsController(ITurnService turnService, IUserService userService, IEncryptionService encryptionService)
         {
             _turnService = turnService;
             _userService = userService;
+            _encryptionService = encryptionService;
         }
 
         // GET: api/Turns
@@ -59,6 +62,31 @@ namespace KairosPWA.Controllers
 
             try
             {
+                var created = await _turnService.CreatePublicTurnAsync(dto);
+                return Ok(created);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // POST api/turns/public/encrypted (clientes piden turno con cifrado de extremo a extremo)
+        [HttpPost("public/encrypted")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreatePublicTurnEncrypted([FromBody] EncryptedPayloadDTO encryptedPayload)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var decryptedJson = _encryptionService.DecryptPayload(encryptedPayload);
+                var dto = JsonSerializer.Deserialize<PublicTurnCreateDTO>(decryptedJson);
+
+                if (dto == null)
+                    return BadRequest(new { message = "Carga cifrada no válida." });
+
                 var created = await _turnService.CreatePublicTurnAsync(dto);
                 return Ok(created);
             }

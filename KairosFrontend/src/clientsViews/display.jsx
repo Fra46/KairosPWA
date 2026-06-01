@@ -157,8 +157,8 @@ export default function Display({ mode: propMode }) {
   const turnsInProgress = turns
   const videoUrl = "/videos/display-evade.mp4"
 
-  // Agrupar turnos por servicio (máximo 2 cajas por servicio)
-  const turnsByService = () => {
+  // Agrupar turnos por servicio y garantizar hasta 2 cajas por servicio
+  const getServiceGroups = () => {
     const grouped = {}
     turns.forEach((turn) => {
       if (!grouped[turn.serviceId]) {
@@ -168,14 +168,52 @@ export default function Display({ mode: propMode }) {
           turns: [],
         }
       }
+      // Solo mostrar dos cajas por servicio
       if (grouped[turn.serviceId].turns.length < 2) {
         grouped[turn.serviceId].turns.push(turn)
       }
     })
-    return Object.values(grouped).sort((a, b) => a.serviceId - b.serviceId)
+
+    let groups = Object.values(grouped)
+      .sort((a, b) => a.serviceId - b.serviceId)
+      .map((service) => {
+        const boxes = [...service.turns]
+        while (boxes.length < 2) {
+          boxes.push({
+            id: `empty-${service.serviceId}-${boxes.length}`,
+            serviceId: service.serviceId,
+            serviceName: service.serviceName,
+            empty: true,
+          })
+        }
+        return {
+          ...service,
+          boxes,
+        }
+      })
+
+    // Asegurar al menos 3 servicios y 6 cajas en pantalla
+    const allServices = Object.values(timeEstimateService.getAllServices())
+    const existingIds = new Set(groups.map((g) => g.serviceId))
+    allServices.some((service) => {
+      if (groups.length >= 3) return true
+      if (!existingIds.has(service.id)) {
+        groups.push({
+          serviceId: service.id,
+          serviceName: service.name,
+          boxes: [
+            { id: `empty-${service.id}-0`, serviceId: service.id, serviceName: service.name, empty: true },
+            { id: `empty-${service.id}-1`, serviceId: service.id, serviceName: service.name, empty: true },
+          ],
+        })
+      }
+      return false
+    })
+
+    return groups.slice(0, 3)
   }
 
-  const serviceGroups = turnsByService()
+  const serviceGroups = getServiceGroups()
 
   return (
     <div className="min-vh-100 d-flex flex-column" style={{ background: "#f5f5f5" }}>
@@ -293,13 +331,13 @@ export default function Display({ mode: propMode }) {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: service.turns.length === 1 ? "1fr" : "1fr 1fr",
+                      gridTemplateColumns: "1fr 1fr",
                       gap: "1rem",
                     }}
                   >
-                    {service.turns.map((turn, boxIndex) => (
+                    {service.boxes.map((turn, boxIndex) => (
                       <div
-                        key={`${turn.id}-box-${boxIndex}`}
+                        key={turn.id}
                         style={{
                           padding: "1rem",
                           borderRadius: 12,
@@ -332,29 +370,42 @@ export default function Display({ mode: propMode }) {
                           Caja {boxIndex + 1}
                         </div>
 
-                        {/* Número de turno */}
-                        <div
-                          style={{
-                            fontSize: 52,
-                            fontWeight: 900,
-                            color: "var(--kairos-primary)",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          {turn.number}
-                        </div>
+                        {turn.empty ? (
+                          <>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--kairos-gray-700)", marginBottom: "0.5rem" }}>
+                              Libre
+                            </div>
+                            <div style={{ fontSize: 12, color: "var(--kairos-gray-600)" }}>
+                              Esperando próximo turno
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {/* Número de turno */}
+                            <div
+                              style={{
+                                fontSize: 52,
+                                fontWeight: 900,
+                                color: "var(--kairos-primary)",
+                                marginBottom: "0.5rem",
+                              }}
+                            >
+                              {turn.number}
+                            </div>
 
-                        {/* Nombre cliente */}
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--kairos-gray-900)", marginBottom: "0.5rem" }}>
-                          {turn.clientName}
-                        </div>
+                            {/* Nombre cliente */}
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--kairos-gray-900)", marginBottom: "0.5rem" }}>
+                              {turn.clientName}
+                            </div>
 
-                        {/* Tiempo estimado */}
-                        <div style={{ fontSize: 11, color: "var(--kairos-primary)", fontWeight: 600 }}>
-                          ⏱️ Est. ~{timeEstimateService.formatEstimatedTime(
-                            timeEstimateService.getEstimatedTime(turns.indexOf(turn) + 1, turn.serviceId, turns.length)
-                          )}
-                        </div>
+                            {/* Tiempo estimado */}
+                            <div style={{ fontSize: 11, color: "var(--kairos-primary)", fontWeight: 600 }}>
+                              ⏱️ Est. ~{timeEstimateService.formatEstimatedTime(
+                                timeEstimateService.getEstimatedTime(boxIndex + 1, turn.serviceId, turns.length)
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>

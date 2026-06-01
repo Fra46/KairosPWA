@@ -46,6 +46,9 @@ builder.Services.AddSingleton<FirebaseAuthService>();
 // Firestore service (opcional, para guardar perfiles)
 builder.Services.AddSingleton<FirestoreService>();
 
+// Servicio de cifrado asimétrico / híbrido
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

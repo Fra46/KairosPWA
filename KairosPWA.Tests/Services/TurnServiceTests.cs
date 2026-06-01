@@ -238,6 +238,55 @@ namespace KairosPWA.Tests.Services
         }
 
         [Fact]
+        public async Task GetPendingTurnsByServiceAsync_OrdenPorPrioridadYNumero()
+        {
+            await AgregarServicioAsync(1);
+            var client = await AgregarClienteAsync("11111111");
+
+            _context.Turns.AddRange(
+                new Turn { Number = 1, Priority = "Normal", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 2, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 3, Priority = "Discapacitado", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 4, Priority = "Mayor", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 5, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now }
+            );
+            await _context.SaveChangesAsync();
+
+            _mapperMock
+                .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, Priority = t.Priority });
+
+            var result = await _turnService.GetPendingTurnsByServiceAsync(1);
+
+            Assert.Equal(new[] { "Embarazada", "Embarazada", "Discapacitado", "Mayor", "Normal" }, result.Select(t => t.Priority));
+            Assert.Equal(new[] { 2, 5, 3, 4, 1 }, result.Select(t => t.Number));
+        }
+
+        [Fact]
+        public async Task GetCurrentPendingTurnByServiceAsync_SeleccionaTurnoConMayorPrioridad()
+        {
+            await AgregarServicioAsync(1);
+            var client = await AgregarClienteAsync("55555555");
+
+            _context.Turns.AddRange(
+                new Turn { Number = 10, Priority = "Normal", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 11, Priority = "Mayor", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now },
+                new Turn { Number = 12, Priority = "Embarazada", State = TurnState.Pendiente.ToString(), ClientId = client.IdClient, ServiceId = 1, FechaHora = DateTime.Now }
+            );
+            await _context.SaveChangesAsync();
+
+            _mapperMock
+                .Setup(m => m.Map<TurnDTO>(It.IsAny<Turn>()))
+                .Returns<Turn>(t => new TurnDTO { Number = t.Number, Priority = t.Priority });
+
+            var result = await _turnService.GetCurrentPendingTurnByServiceAsync(1);
+
+            Assert.NotNull(result);
+            Assert.Equal("Embarazada", result!.Priority);
+            Assert.Equal(12, result.Number);
+        }
+
+        [Fact]
         public async Task AdvanceTurnByServiceAsync_SeleccionaTurnoConMayorPrioridad()
         {
             await AgregarServicioAsync(1);
@@ -453,7 +502,7 @@ namespace KairosPWA.Tests.Services
 
             var current = await _turnService.GetCurrentPendingTurnByServiceAsync(svc.IdService);
             Assert.NotNull(current);
-            Assert.Equal(1, current!.Number);
+            Assert.Equal(2, current!.Number);
         }
 
         [Fact]

@@ -32,6 +32,11 @@ export const turnService = {
         return response.data;
     },
 
+    CreatePublicEncrypted: async (data) => {
+        const response = await api.post('/turns/public/encrypted', data);
+        return response.data;
+    },
+
     // Cliente cancela turno público
     CancelPublic: async (data) => {
         const response = await api.post('/turns/public/cancel', data);

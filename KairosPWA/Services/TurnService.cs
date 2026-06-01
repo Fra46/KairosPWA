@@ -210,6 +210,17 @@ namespace KairosPWA.Services
             return TurnPriority.Normal.ToString();
         }
 
+        private static int GetPriorityRank(string? priority)
+        {
+            return priority switch
+            {
+                var p when string.Equals(p, TurnPriority.Embarazada.ToString(), StringComparison.OrdinalIgnoreCase) => 0,
+                var p when string.Equals(p, TurnPriority.Discapacitado.ToString(), StringComparison.OrdinalIgnoreCase) => 1,
+                var p when string.Equals(p, TurnPriority.Mayor.ToString(), StringComparison.OrdinalIgnoreCase) => 2,
+                _ => 3,
+            };
+        }
+
         public async Task<List<TurnDTO>> GetAllPendingTurnsAsync()
         {
             var pendingState = TurnState.Pendiente.ToString();
@@ -218,10 +229,7 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.State == pendingState)
-                .OrderBy(t => t.Priority == TurnPriority.Embarazada.ToString() ? 0
-                    : t.Priority == TurnPriority.Discapacitado.ToString() ? 1
-                    : t.Priority == TurnPriority.Mayor.ToString() ? 2
-                    : 3)
+                .OrderBy(t => GetPriorityRank(t.Priority))
                 .ThenBy(t => t.Number)
                 .ToListAsync();
 
@@ -234,10 +242,7 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.ServiceId == serviceId && t.State == TurnState.Pendiente.ToString())
-                .OrderBy(t => t.Priority == TurnPriority.Embarazada.ToString() ? 0
-                    : t.Priority == TurnPriority.Discapacitado.ToString() ? 1
-                    : t.Priority == TurnPriority.Mayor.ToString() ? 2
-                    : 3)
+                .OrderBy(t => GetPriorityRank(t.Priority))
                 .ThenBy(t => t.Number)
                 .ToListAsync();
 
@@ -250,7 +255,8 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.ServiceId == serviceId && t.State == TurnState.Pendiente.ToString())
-                .OrderBy(t => t.Number)
+                .OrderBy(t => GetPriorityRank(t.Priority))
+                .ThenBy(t => t.Number)
                 .FirstOrDefaultAsync();
 
             return turn != null ? _mapper.Map<TurnDTO>(turn) : null;
@@ -297,10 +303,7 @@ namespace KairosPWA.Services
                 .Include(t => t.Client)
                 .Include(t => t.Service)
                 .Where(t => t.State == pendingState && t.ServiceId == serviceId)
-                .OrderBy(t => t.Priority == TurnPriority.Embarazada.ToString() ? 0
-                    : t.Priority == TurnPriority.Discapacitado.ToString() ? 1
-                    : t.Priority == TurnPriority.Mayor.ToString() ? 2
-                    : 3)
+                .OrderBy(t => GetPriorityRank(t.Priority))
                 .ThenBy(t => t.Number)
                 .FirstOrDefaultAsync();
 

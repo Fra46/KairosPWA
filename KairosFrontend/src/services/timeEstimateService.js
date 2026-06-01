@@ -58,5 +58,10 @@ export const timeEstimateService = {
   /**
    * Retorna todos los servicios disponibles
    */
-  getAllServices: () => serviceEstimates,
+  getAllServices: () =>
+    Object.entries(serviceEstimates).map(([id, service]) => ({
+      id: Number(id),
+      name: service.name,
+      minutes: service.minutes,
+    })),
 }

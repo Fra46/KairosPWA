@@ -15,16 +15,19 @@ namespace KairosPWA.Tests.Controllers
     {
         private readonly Mock<ITurnService> _turnServiceMock;
         private readonly Mock<IUserService> _userServiceMock;
+        private readonly Mock<IEncryptionService> _encryptionServiceMock;
         private readonly TurnsController _controller;
 
         public TurnsControllerTests()
         {
             _turnServiceMock = new Mock<ITurnService>();
             _userServiceMock = new Mock<IUserService>();
+            _encryptionServiceMock = new Mock<IEncryptionService>();
 
             _controller = new TurnsController(
                 _turnServiceMock.Object,
-                _userServiceMock.Object
+                _userServiceMock.Object,
+                _encryptionServiceMock.Object
             );
         }
 
@@ -129,7 +132,42 @@ namespace KairosPWA.Tests.Controllers
 
             Assert.IsType<BadRequestObjectResult>(result);
         }
+        [Fact]
+        public async Task CreatePublicTurnEncrypted_ReturnsOk()
+        {
+            var encryptedPayload = new EncryptedPayloadDTO
+            {
+                EncryptedKey = "abc",
+                IV = "def",
+                CipherText = "ghi",
+                AuthTag = "jkl"
+            };
 
+            var decryptedJson = "{\"clientDocument\":\"12345678\",\"clientName\":\"Test\",\"serviceId\":1,\"priority\":\"Normal\",\"clientDocumentType\":\"cedula\"}";
+            var dto = new PublicTurnCreateDTO
+            {
+                ClientDocument = "12345678",
+                ClientName = "Test",
+                ServiceId = 1,
+                Priority = "Normal",
+                ClientDocumentType = "cedula"
+            };
+            var createdTurn = new TurnDTO { Number = 7 };
+
+            _encryptionServiceMock
+                .Setup(x => x.DecryptPayload(encryptedPayload))
+                .Returns(decryptedJson);
+
+            _turnServiceMock
+                .Setup(x => x.CreatePublicTurnAsync(It.IsAny<PublicTurnCreateDTO>()))
+                .ReturnsAsync(createdTurn);
+
+            var result = await _controller.CreatePublicTurnEncrypted(encryptedPayload);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<TurnDTO>(okResult.Value);
+            Assert.Equal(7, returnValue.Number);
+        }
         [Fact]
         public async Task CancelPublicTurn_NotFound_ReturnsNotFound()
         {
