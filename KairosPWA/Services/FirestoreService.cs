@@ -19,7 +19,7 @@ namespace KairosPWA.Services
                 throw new InvalidOperationException("Firestore requires Firebase:ServiceAccountPath and Firebase:ProjectId en la configuración.");
             }
 
-            var credential = GoogleCredential.FromFile(serviceAccountPath);
+            var credential = CredentialFactory.FromFile<ServiceAccountCredential>(serviceAccountPath).ToGoogleCredential();
             var builder = new FirestoreClientBuilder { Credential = credential };
             var client = builder.Build();
 

@@ -87,10 +87,17 @@ export default function SeleccionarServicio() {
     setRequesting(true)
     setError("")
 
+    const normalizedServiceId = serviceId || 0
+    if (!normalizedServiceId || normalizedServiceId <= 0) {
+      setError("Servicio inválido.")
+      setRequesting(false)
+      return
+    }
+
     const publicTurnData = {
       clientDocument: documento,
       clientName: clientName,
-      serviceId: serviceId,
+      serviceId: normalizedServiceId,
       priority: selectedPriority,
       clientDocumentType: docType || "cedula"
     }
@@ -113,7 +120,7 @@ export default function SeleccionarServicio() {
         navigate(`${basePath}/confirmacion-turno`, {
           state: {
             turnNumber: response.number,
-            serviceId,
+            serviceId: normalizedServiceId,
             serviceName: serviceName,
             clientName: clientName,
             documento: documento,
@@ -260,10 +267,13 @@ export default function SeleccionarServicio() {
               </div>
             ) : (
               <div className="row g-3 mb-4">
-                {services.map((service, index) => (
-                  <div
-                    key={service.idService}
-                    className="col-6 col-md-4"
+                {services.map((service, index) => {
+                  const serviceId = service.idService ?? service.IdService
+                  const serviceName = service.name ?? service.Name
+                  return (
+                    <div
+                      key={serviceId}
+                      className="col-6 col-md-4"
                     style={{
                       animation: `fadeIn 0.5s ease-out ${0.1 + index * 0.05}s forwards`,
                       opacity: 0,
@@ -271,19 +281,19 @@ export default function SeleccionarServicio() {
                   >
                     <button
                       className="numpad-btn w-100 d-flex flex-column align-items-center justify-content-center gap-2 py-4"
-                      onClick={() => handleSelectService(service.idService, service.name)}
+                      onClick={() => handleSelectService(serviceId, serviceName)}
                       disabled={requesting}
                       style={{ minHeight: "140px", fontSize: "0.9rem" }}
                     >
                       <div className="doc-icon" style={{ color: "var(--kairos-primary)", display: "flex" }}>
-                        {getServiceIcon(service.name)}
+                        {getServiceIcon(serviceName)}
                       </div>
                       <span className="text-center" style={{ lineHeight: 1.3, fontWeight: 600 }}>
-                        {service.name}
+                        {serviceName}
                       </span>
                     </button>
                   </div>
-                ))}
+                )})}
               </div>
             )}
 

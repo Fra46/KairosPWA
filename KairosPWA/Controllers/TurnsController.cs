@@ -82,7 +82,10 @@ namespace KairosPWA.Controllers
             try
             {
                 var decryptedJson = _encryptionService.DecryptPayload(encryptedPayload);
-                var dto = JsonSerializer.Deserialize<PublicTurnCreateDTO>(decryptedJson);
+                var dto = JsonSerializer.Deserialize<PublicTurnCreateDTO>(decryptedJson, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
                 if (dto == null)
                     return BadRequest(new { message = "Carga cifrada no válida." });

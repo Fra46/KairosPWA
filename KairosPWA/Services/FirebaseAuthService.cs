@@ -16,7 +16,7 @@ namespace KairosPWA.Services
             var serviceAccountPath = _configuration["Firebase:ServiceAccountPath"];
             if (!string.IsNullOrEmpty(serviceAccountPath) && FirebaseApp.DefaultInstance == null)
             {
-                var credential = GoogleCredential.FromFile(serviceAccountPath);
+                var credential = CredentialFactory.FromFile<ServiceAccountCredential>(serviceAccountPath).ToGoogleCredential();
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = credential
