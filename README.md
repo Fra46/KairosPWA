@@ -134,13 +134,6 @@ cd KairosPWA.Tests
 dotnet test
 ```
 
-## 🤝 Contribuir
-
-1. Crear un fork del repositorio.
-2. Crear una rama para tu cambio: `git checkout -b feature/nueva-funcionalidad`.
-3. Hacer commit de tus cambios.
-4. Abrir un pull request.
-
 ## 📄 Licencia
 
 Este proyecto está bajo la licencia MIT.
