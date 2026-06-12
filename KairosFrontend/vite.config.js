@@ -17,7 +17,7 @@ export default defineConfig({
         name: 'Kairos',
         short_name: 'Kairos',
         description: 'Sistema de gestion de turnos',
-        theme_color: '#fff530ff',
+        theme_color: '#f97316',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
